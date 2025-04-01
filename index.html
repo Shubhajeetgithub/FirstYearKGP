@@ -220,6 +220,26 @@
             margin: 0;
             padding: 0;
         }
+
+        @media (max-width: 500px) {
+            .subjects {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .topic-image {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            
+            .topic-name {
+                white-space: normal;
+                overflow: visible;
+                text-overflow: initial;
+                width: 100%;
+            }
+        }
+
     </style>
     <script>
         function toggleResources(id) {
