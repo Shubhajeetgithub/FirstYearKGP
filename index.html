@@ -12,7 +12,7 @@
             box-sizing: border-box;
         }
         body {
-            background-color: #000;
+            background: linear-gradient(to right,#0a011e,#3f0202)  ;
             color: #fff;
             font-family: Arial, sans-serif;
             padding: 20px;
@@ -72,8 +72,30 @@
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            transition: color 0.3s ease;
+            position: relative;
+            padding-top: 10px;
+            transition: all 0.3s ease;
         }
+
+        li:hover {
+            color: #FF4500;
+        }
+
+        li::before {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #FF4500;
+            transition: width 0.3s ease;
+        }
+
+        li:hover::before {
+            width: 100%;
+        }
+
         .resources {
             padding: 5px;
             border: 1px solid white;
@@ -117,8 +139,8 @@
         }
 
         .topic-image {
-            width: 10%;
-            height: auto;
+            width: 100px;
+            height: 100px;
             background-color: #fff;
             border-radius: 5px;
             padding: 10px;
@@ -183,6 +205,10 @@
             margin: 15px 0 5px 0;
             color: #fff;
         }
+
+        .person:hover {
+            scale: 1.2;
+        }
         
         .person-email {
             color: #00BFFF;
@@ -236,12 +262,12 @@
                 <div class="resources" id="s1">
                     <ul class="course-list">
                         <li class="subjects" onclick="event.stopPropagation(); toggleSubject('adv_calc')">
-                            <img height="153" width="366" src="https://github.com/Shubhajeetgithub/photos/blob/main/AC.png?raw=true" alt="AC" class="topic-image">
+                            <img src="https://github.com/Shubhajeetgithub/photos/blob/main/AC.png?raw=true" alt="AC" class="topic-image">
                             <p class="topic-name">Advanced Calculus</p>
                             <div class="subject-content" id="adv_calc">
                                 <ul>
-                                    <li><a href="https://github.com/Shubhajeetgithub/FirstYearKGP/tree/main/AdvancedCalculus/Tutorials" target="_blank">Tutorials</a></li>
-                                    <li>Lecture Notes (Coming Soon)</li>
+                                    <li class="topic-name"><a href="https://github.com/Shubhajeetgithub/FirstYearKGP/tree/main/AdvancedCalculus/Tutorials" target="_blank">Tutorials</a></li>
+                                    <li class="topic-name">Lecture Notes</li>
                                 </ul>
                             </div>
                         </li>
@@ -253,10 +279,12 @@
                 <div class="resources" id="s2">
                     <ul class="course-list">
                         <li class="subjects" onclick="event.stopPropagation(); toggleSubject('ec')">
-                            <img height="120" width="259" src="https://github.com/Shubhajeetgithub/photos/blob/main/EC.png?raw=true" alt="EC" class="topic-image">
+                            <img src="https://github.com/Shubhajeetgithub/photos/blob/main/EC.png?raw=true" alt="EC" class="topic-image">
                             <p class="topic-name">Basic Electronics</p>
                             <div class="subject-content" id="ec">
-                                <a href="https://github.com/Shubhajeetgithub/FirstYearKGP/tree/main/EC/PYQ" target="_blank">PYQ</a>
+                                <ul>
+                                    <li class="topic-name"><a href="https://github.com/Shubhajeetgithub/FirstYearKGP/tree/main/EC/PYQ" target="_blank">PYQ</a></li>
+                                </ul>
                             </div>
                         </li>
                         <hr>
@@ -265,8 +293,8 @@
                             <p class="topic-name">Electrical Technology</p>
                             <div class="subject-content" id="et">
                                 <ul>
-                                    <li><a href="https://github.com/Shubhajeetgithub/FirstYearKGP/tree/main/ET/PYQ" target="_blank">PYQ</a></li>
-                                    <li><a href="https://github.com/Shubhajeetgithub/FirstYearKGP/tree/main/ET/Tutorials" target="_blank">Tutorials</a></li>
+                                    <li class="topic-name"><a href="https://github.com/Shubhajeetgithub/FirstYearKGP/tree/main/ET/PYQ" target="_blank">PYQ</a></li>
+                                    <li class="topic-name"><a href="https://github.com/Shubhajeetgithub/FirstYearKGP/tree/main/ET/Tutorials" target="_blank">Tutorials</a></li>
                                 </ul>
                             </div>
                         </li>
@@ -274,7 +302,9 @@
                         <li class="subjects" onclick="event.stopPropagation(); toggleSubject('intro_ds')">
                             <img src="https://github.com/Shubhajeetgithub/photos/blob/main/IntroDS.png?raw=true" alt="IntroDS" class="topic-image">
                             <p class="topic-name">Introduction to Data Science</p>
-                            <div class="subject-content" id="intro_ds">Coming Soon</div>
+                            <div class="subject-content" id="intro_ds">
+                                <p class="topic-name">Coming Soon</p>
+                            </div>
                         </li>
                         <hr>
                         <li class="subjects" onclick="event.stopPropagation(); toggleSubject('lanca')">
@@ -282,8 +312,8 @@
                             <p class="topic-name">Linear Algebra, Numerical and Complex Analysis</p>
                             <div class="subject-content" id="lanca">
                                 <ul>
-                                    <li><a href="https://github.com/Shubhajeetgithub/FirstYearKGP/tree/main/LANCA/PYQ" target="_blank">PYQ</a></li>
-                                    <li><a href="https://github.com/Shubhajeetgithub/FirstYearKGP/tree/main/LANCA/Tutorials" target="_blank">Tutorials</a></li>
+                                    <li class="topic-name"><a href="https://github.com/Shubhajeetgithub/FirstYearKGP/tree/main/LANCA/PYQ" target="_blank">PYQ</a></li>
+                                    <li class="topic-name"><a href="https://github.com/Shubhajeetgithub/FirstYearKGP/tree/main/LANCA/Tutorials" target="_blank">Tutorials</a></li>
                                 </ul>
                             </div>
                         </li>
