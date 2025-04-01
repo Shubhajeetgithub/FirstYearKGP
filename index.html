@@ -83,7 +83,7 @@
             padding-left: 20px;
             font-size: 16px;
             color: #aaa;
-            overflow: hidden;
+            overflow: auto;
             max-height: 0;
             opacity: 0;
             transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
@@ -117,8 +117,8 @@
         }
 
         .topic-image {
-            width: 100px;
-            height: 100px;
+            width: 10%;
+            height: auto;
             background-color: #fff;
             border-radius: 5px;
             padding: 10px;
@@ -134,7 +134,7 @@
         
         .topic-name {
             color: white;
-            font-size: 1.1em;
+            font-size: clamp(0.1rem, 3vw, 1.5rem);
             flex: 1;
             /* Prevent long text from overflowing */
             white-space: normal;
@@ -236,7 +236,7 @@
                 <div class="resources" id="s1">
                     <ul class="course-list">
                         <li class="subjects" onclick="event.stopPropagation(); toggleSubject('adv_calc')">
-                            <img src="https://github.com/Shubhajeetgithub/photos/blob/main/AC.png?raw=true" alt="AC" class="topic-image">
+                            <img height="153" width="366" src="https://github.com/Shubhajeetgithub/photos/blob/main/AC.png?raw=true" alt="AC" class="topic-image">
                             <p class="topic-name">Advanced Calculus</p>
                             <div class="subject-content" id="adv_calc">
                                 <ul>
@@ -253,7 +253,7 @@
                 <div class="resources" id="s2">
                     <ul class="course-list">
                         <li class="subjects" onclick="event.stopPropagation(); toggleSubject('ec')">
-                            <img src="https://github.com/Shubhajeetgithub/photos/blob/main/EC.png?raw=true" alt="EC" class="topic-image">
+                            <img height="120" width="259" src="https://github.com/Shubhajeetgithub/photos/blob/main/EC.png?raw=true" alt="EC" class="topic-image">
                             <p class="topic-name">Basic Electronics</p>
                             <div class="subject-content" id="ec">
                                 <a href="https://github.com/Shubhajeetgithub/FirstYearKGP/tree/main/EC/PYQ" target="_blank">PYQ</a>
