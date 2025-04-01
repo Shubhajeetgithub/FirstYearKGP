@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IITKGP-AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .resources {
+            padding: 5px;
+            border: 1px solid white;
+            border-radius: 5px;
+        }
+        .resources, .subject-content {
+            padding-left: 20px;
+            font-size: 16px;
+            color: #aaa;
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+        }
+        .subjects {
+            font-weight: normal;
+            color: #ddd;
+            cursor: pointer;
+        }
+        a {
+            color: #0af;
+            text-decoration: none;
+        }
+        .show {
+            max-height: 500px;
+            opacity: 1;
+        }
+    </style>
+    <script>
+        function toggleResources(id) {
+            let element = document.getElementById(id);
+            if (element.classList.contains('show')) {
+                element.classList.remove('show');
+            } else {
+                document.querySelectorAll('.resources').forEach(res => res.classList.remove('show'));
+                element.classList.add('show');
+            }
+        }
+        function toggleSubject(id) {
+            let element = document.getElementById(id);
+            if (element.classList.contains('show')) {
+                element.classList.remove('show');
+            } else {
+                element.closest('.resources').querySelectorAll('.subject-content').forEach(content => content.classList.remove('show'));
+                element.classList.add('show');
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>AI IITKGP 2024</h1>
+    <div>
+        <ul>
+            <li onclick="toggleResources('s1')">Sem 1
+                <div class="resources" id="s1">
+                    <ul>
+                        <li class="subjects" onclick="event.stopPropagation(); toggleSubject('adv_calc')">Advanced Calculus
+                            <div class="subject-content" id="adv_calc">
+                                <ul>
+                                    <li><a href="https://github.com/Shubhajeetgithub/FirstYearKGP/tree/main/AdvancedCalculus/Tutorials" target="_blank">Tutorials</a></li>
+                                    <li>Lecture Notes (Coming Soon)</li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                    More Coming Soon...
+                </div>
+            </li>
+            <li onclick="toggleResources('s2')">Sem 2
+                <div class="resources" id="s2">
+                    <ul>
+                        <li class="subjects" onclick="event.stopPropagation(); toggleSubject('ec')">EC
+                            <div class="subject-content" id="ec">
+                                <a href="https://github.com/Shubhajeetgithub/FirstYearKGP/tree/main/EC/PYQ" target="_blank">PYQ</a>
+                            </div>
+                        </li>
+                        <li class="subjects" onclick="event.stopPropagation(); toggleSubject('et')">ET
+                            <div class="subject-content" id="et">
+                                <ul>
+                                    <li><a href="https://github.com/Shubhajeetgithub/FirstYearKGP/tree/main/ET/PYQ" target="_blank">PYQ</a></li>
+                                    <li><a href="https://github.com/Shubhajeetgithub/FirstYearKGP/tree/main/ET/Tutorials" target="_blank">Tutorials</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="subjects" onclick="event.stopPropagation(); toggleSubject('intro_ds')">Intro to DS
+                            <div class="subject-content" id="intro_ds">Coming Soon</div>
+                        </li>
+                        <li class="subjects" onclick="event.stopPropagation(); toggleSubject('lanca')">LANCA
+                            <div class="subject-content" id="lanca">
+                                <ul>
+                                    <li><a href="https://github.com/Shubhajeetgithub/FirstYearKGP/tree/main/LANCA/PYQ" target="_blank">PYQ</a></li>
+                                    <li><a href="https://github.com/Shubhajeetgithub/FirstYearKGP/tree/main/LANCA/Tutorials" target="_blank">Tutorials</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li onclick="toggleResources('s3')">Sem 3
+                <div class="resources" id="s3">Coming Soon...</div>
+            </li>
+            <li onclick="toggleResources('s4')">Sem 4
+                <div class="resources" id="s4">Coming Soon...</div>
+            </li>
+            <li onclick="toggleResources('s5')">Sem 5
+                <div class="resources" id="s5">Coming Soon...</div>
+            </li>
+            <li onclick="toggleResources('s6')">Sem 6
+                <div class="resources" id="s6">Coming Soon...</div>
+            </li>
+            <li onclick="toggleResources('s7')">Sem 7
+                <div class="resources" id="s7">Coming Soon...</div>
+            </li>
+            <li onclick="toggleResources('s8')">Sem 8
+                <div class="resources" id="s8">Coming Soon...</div>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>
