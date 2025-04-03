@@ -64,9 +64,8 @@ body {
 
 .welcome {
             font-family: monospace;
-            font-size: clamp(1rem, 4vw, 2rem);
             display: flex;
-            overflow: hidden;
+            overflow: visible !important;
             white-space: nowrap;
             border-right: 1px solid;
             animation: typing 5s steps(40) forwards,
