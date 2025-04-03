@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
+    
     <link rel="apple-touch-icon" sizes="180x180" href="https://github.com/Shubhajeetgithub/photos/blob/main/apple-touch-icon.png?raw=true">
     <link rel="icon" type="image/png" sizes="32x32" href="https://github.com/Shubhajeetgithub/photos/blob/main/favicon-32x32.png?raw=true">
     <link rel="icon" type="image/png" sizes="16x16" href="https://github.com/Shubhajeetgithub/photos/blob/main/favicon-16x16.png?raw=true">
@@ -9,279 +9,13 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://github.com/Shubhajeetgithub/FirstYearKGP/blob/ffe671dc230a0e4a18b562d4cd87492a6ace3b45/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ai 2024</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            background: linear-gradient(to right,#0a011e,#3f0202)  ;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-        .header {
-            background-color: #4B0082;
-            width: 100%;
-            padding: 20px 0;
-            text-align: center;
-            margin: 0;
-            position: relative;
-            top: 0;
-            left: 0;
-        }
-        
-        .title {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .intro {
-            color: white;
-            padding: 1.5rem;
-            border: 0.3em solid white;
-            border-radius: 5em;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .ai-text {
-            display: inline-block;
-        }
-        
-        .a-letter {
-            color: #FF4500;
-            font-family: 'Courier New', Courier, monospace;
-        }
-        
-        .i-letter {
-            color: #00BFFF;
-            font-family: 'Courier New', Courier, monospace;
-        }
-        
-        .ai-full {
-            display: none;
-        }
-        
-        .ai-text:hover .ai-short {
-            display: none;
-        }
-        
-        .ai-text:hover .ai-full {
-            display: inline;
-        }
-        
-        .department {
-            font-size: 1.8em;
-            text-align: center;
-            margin-top: 10px;
-            font-family:'Courier New', Courier, monospace;
-        }
-        ul {
-            list-style-type: none;
-            padding-left: 20px;
-        }
-        li {
-            margin-bottom: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            position: relative;
-            padding-top: 10px;
-            transition: all 0.3s ease;
-        }
-
-        li:hover {
-            color: #FF4500;
-        }
-
-        li::before {
-            content: "";
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background-color: #FF4500;
-            transition: width 0.3s ease;
-        }
-
-        li:hover::before {
-            width: 100%;
-        }
-
-        .resources {
-            padding: 5px;
-            border: 1px solid white;
-            border-radius: 5px;
-        }
-        .resources, .subject-content {
-            padding-left: 20px;
-            font-size: 16px;
-            color: #aaa;
-            overflow: auto;
-            max-height: 0;
-            opacity: 0;
-            transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
-        }
-        .course-list {
-            border: 1px solid white;
-            border-radius: 5px;
-            padding: 15px;
-            list-style-type: none;
-            margin: 0;
-        }
-        .subjects {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #333;
-        }
-        .subjects:last-child {
-            margin-bottom: 0;
-            padding-bottom: 0;
-            border-bottom: none;
-        }
-        a {
-            color: #0af;
-            text-decoration: none;
-        }
-        .show {
-            max-height: 500px;
-            opacity: 1;
-        }
-
-        .topic-image {
-            width: 100px;
-            height: 100px;
-            background-color: #fff;
-            border-radius: 5px;
-            padding: 10px;
-            margin-right: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .topic-image img {
-            max-width: 100%;
-            max-height: 100%;
-        }
-        
-        .topic-name {
-            color: white;
-            font-size: clamp(0.1rem, 3vw, 1.5rem);
-            flex: 1;
-            /* Prevent long text from overflowing */
-            white-space: normal;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Credits section styling */
-        .credits {
-            margin-top: 50px;
-            padding: 30px 0;
-            background-color: #111;
-            text-align: center;
-        }
-        
-        .credits-title {
-            font-size: 1.8em;
-            margin-bottom: 30px;
-            color: white;
-        }
-        
-        .people-container {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        
-        .person {
-            width: 300px;
-            margin: 20px;
-            text-align: center;
-        }
-        
-        .person-photo {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #4B0082;
-        }
-        
-        .person-name {
-            font-size: 1.4em;
-            margin: 15px 0 5px 0;
-            color: #fff;
-        }
-
-        .person:hover {
-            scale: 1.2;
-        }
-        
-        .person-email {
-            color: #00BFFF;
-            font-size: 1em;
-            font-family: 'Courier New', Courier, monospace;
-        }
-
-        html {
-            margin: 0;
-            padding: 0;
-        }
-
-        @media (max-width: 500px) {
-            .subjects {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .topic-image {
-                margin-right: 0;
-                margin-bottom: 10px;
-            }
-            
-            .topic-name {
-                white-space: normal;
-                overflow: visible;
-                text-overflow: initial;
-                width: 100%;
-            }
-        }
-
-    </style>
-    <script>
-        function toggleResources(id) {
-            let element = document.getElementById(id);
-            if (element.classList.contains('show')) {
-                element.classList.remove('show');
-            } else {
-                document.querySelectorAll('.resources').forEach(res => res.classList.remove('show'));
-                element.classList.add('show');
-            }
-        }
-        function toggleSubject(id) {
-            let element = document.getElementById(id);
-            if (element.classList.contains('show')) {
-                element.classList.remove('show');
-            } else {
-                element.closest('.resources').querySelectorAll('.subject-content').forEach(content => content.classList.remove('show'));
-                element.classList.add('show');
-            }
-        }
-    </script>
+    <script src="https://github.com/Shubhajeetgithub/FirstYearKGP/blob/ffe671dc230a0e4a18b562d4cd87492a6ace3b45/script.js"></script>
 </head>
 <body>
-
-    <div class="header">
+    <header class="header">
         <h1 class="title">
             <span class="ai-text">
                 <span class="ai-short"><span class="a-letter">A</span><span class="i-letter">i</span></span>
@@ -291,11 +25,10 @@
         </h1>
         
         <h2 class="department">Department of Artificial Intelligence</h2>
-    </div>
+    </header>
     
-    <div>
-        <br>
-        <br>
+    <main>
+        <br><br>
         <div class="intro">
         <h1>Welcome</h1>
         <br>
@@ -411,10 +144,10 @@
                 <div class="resources" id="s8">Coming Soon...</div>
             </li>
         </ul>
-    </div>
+    </main>
 
     <!-- Credits Section -->
-    <div class="credits">
+    <footer class="credits">
         <h2 class="credits-title">Credits</h2>
         <div class="people-container">
             <div class="person">
@@ -435,6 +168,6 @@
                 </p>
             </div>
         </div>
-    </div>
+    </footer>
 </body>
 </html>
