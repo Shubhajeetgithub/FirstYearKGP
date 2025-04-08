@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://shubhajeetgithub.github.io/FirstYearKGP/sitemap.xml
