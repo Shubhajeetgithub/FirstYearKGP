@@ -63,27 +63,26 @@ body {
 }
 
 .welcome {
-            font-family: monospace;
-            display: flex;
-            overflow: visible !important;
-            white-space: nowrap;
-            border-right: 1px solid;
-            animation: typing 5s steps(40) forwards,
-            blink 2s step-end infinite;
+    width: 20ch;
+    font-family: monospace;
+    overflow: hidden;
+    text-wrap: nowrap;
+    animation: typing 2s steps(20) infinite
+    alternate-reverse;
 }
 @keyframes typing {
-            from {
-                width: 0;
-            }
-            to {
-                width: 100%;
-            }
+    0% {
+        width: 0ch;
+    }
+    50% {
+        width: 20ch;
+    }
+    100% {
+        width: 20ch;
+    }
+
 }
-@keyframes blink {
-            50% {
-                border-color: transparent;
-            }
-}
+
 
 .department {
     font-size: 1.8em;
