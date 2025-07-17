@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import Welcome from './components/Welcome';
-import Credits from './components/Credits';
-
+import { Outlet } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 const App = () => {
   const [activeTab, setActiveTab] = useState('Home');
 
@@ -28,7 +27,8 @@ const App = () => {
       {/* Navigation */}
       <nav className="flex gap-6 mt-12 relative z-10">
         {navItems.map((item) => (
-          <button
+          <NavLink
+            to={`/${item}`}
             key={item}
             onClick={() => setActiveTab(item)}
             className={`px-6 py-3 rounded-lg border transition-all duration-300 transform hover:scale-105 ${
@@ -38,12 +38,12 @@ const App = () => {
             } backdrop-blur-sm`}
           >
             {item}
-          </button>
+          </NavLink>
         ))}
       </nav>
       
-      <Welcome />
-      <Credits />
+      <Outlet />
+      
 
       {/* Floating Elements */}
       <div className="absolute top-20 left-10 w-2 h-2 bg-blue-500 rounded-full animate-ping"></div>
