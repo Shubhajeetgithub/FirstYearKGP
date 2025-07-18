@@ -1,2 +1,1 @@
-# FirstYearKGP
-This contains resources useful for first year students, specifically alligned for AI students at IIT Kharagpur.
+This website is specifically alligned for students in AI department at IIT Kharagpur.
