@@ -25,7 +25,7 @@ const App = () => {
       </header>
 
       {/* Navigation */}
-      <nav className="flex gap-6 mt-12 relative z-10">
+      <nav className="flex gap-6 mt-12 relative z-10 flex-wrap justify-evenly">
         {navItems.map((item) => (
           <NavLink
             to={`/${item}`}
