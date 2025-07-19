@@ -1,11 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { NavLink } from 'react-router-dom';
 const App = () => {
   const [activeTab, setActiveTab] = useState('Home');
 
 
-  const navItems = ['Home', 'TimeTable', 'Announcements', 'Resources'];
+  const navItems = [
+    {
+      id:1,
+      name:'Home',
+      route: '/',
+    },
+    {
+      id:2,
+      name:'TimeTable',
+      route:'/TimeTable',
+    },
+    {
+      id:3,
+      name:'Announcements',
+      route:'/Announcements',
+    },
+    {
+      id:4,
+      name:'Resources',
+      route:'/Resources',
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white flex flex-col items-center">
@@ -28,16 +49,16 @@ const App = () => {
       <nav className="flex gap-6 mt-12 relative z-10 flex-wrap justify-evenly">
         {navItems.map((item) => (
           <NavLink
-            to={`/${item}`}
-            key={item}
-            onClick={() => setActiveTab(item)}
+            to={`${item.route}`}
+            key={item.id}
+            onClick={() => setActiveTab(item.name)}
             className={`px-6 py-3 rounded-lg border transition-all duration-300 transform hover:scale-105 ${
-              activeTab === item
+              activeTab === item.name
                 ? 'bg-gradient-to-r from-blue-600 to-purple-600 border-blue-500 shadow-lg shadow-blue-500/25'
                 : 'bg-gray-800/50 border-gray-600 hover:bg-gray-700/50 hover:border-gray-500'
             } backdrop-blur-sm`}
           >
-            {item}
+            {item.name}
           </NavLink>
         ))}
       </nav>
