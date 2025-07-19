@@ -1,11 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronDown, ChevronRight, BookOpen, FileText, Download, ExternalLink } from 'lucide-react';
-
-const { semesterData } = await import('../data/semester');
 
 function Resources() {
   const [openSemester, setOpenSemester] = useState(null);
   const [openSubject, setOpenSubject] = useState({});
+  const [semesterData, setSemesterData] = useState(null);
+
+  // lazy loading
+  useEffect(() => {
+    const loadData = async () => {
+      const { semesterData } = await import('../data/semester');
+      setSemesterData(semesterData);
+    };
+    loadData();
+  }, []);
 
   // Toggle semester open/close
   const toggleResources = (sem) => {
@@ -19,6 +27,14 @@ function Resources() {
       [subjectId]: !prev[subjectId],
     }));
   };
+
+  if (!semesterData) {
+    return (
+      <div className="text-center p-8">
+        <p className="text-purple-600 font-bold text-lg">Loading Academic Resources...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-6 min-h-screen">
