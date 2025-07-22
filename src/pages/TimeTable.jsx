@@ -58,7 +58,7 @@ function TimeTable() {
                 <td></td>
                 <td><span className="subject">ML</span><br /><span className="room">NC231</span></td>
                 <td></td>
-                <td><span className="subject">ML Lab</span></td>
+                <td><span className="subject">ML Lab</span><br /><span className="room">CIC Lab VI</span></td>
                 <td></td>
                 <td></td>
                 </tr>
@@ -70,7 +70,7 @@ function TimeTable() {
                 <td><span className="subject">ML</span><br /><span className="room">NC231</span></td>
                 <td></td>
                 <td></td>
-                <td><span className="subject">Algo lab</span><br /><span className="room">NC331</span></td>
+                <td><span className="subject">Algo lab</span><br /><span className="room">CIC Lab VI</span></td>
                 <td></td>
                 <td></td>
                 </tr>
@@ -263,6 +263,7 @@ function TimeTable() {
                 <div className="time">3:00–3:55 PM</div>
                 <div className="subject-info">
                     <div className="subject">ML Lab</div>
+                    <div className="room">CIC Lab VI</div>
                 </div>
                 </div>
                 <div className="time-slot empty">
@@ -326,7 +327,7 @@ function TimeTable() {
                 <div className="time">3:00–3:55 PM</div>
                 <div className="subject-info">
                     <div className="subject">Algo lab</div>
-                    <div className="room">NC331</div>
+                    <div className="room">CIC Lab VI</div>
                 </div>
                 </div>
                 <div className="time-slot empty">
