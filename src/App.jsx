@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { NavLink } from 'react-router-dom';
-import MouseGlow from './components/MouseGLow';
+import BackgroundFX from './components/BackGroundFX';
+
 const App = () => {
   const [activeTab, setActiveTab] = useState('Home');
-
-
   const navItems = [
     {
       id:1,
@@ -30,7 +29,7 @@ const App = () => {
   ];
 
   return (
-    <MouseGlow>
+    <BackgroundFX>
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white flex flex-col items-center">
         {/* Background Pattern */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,_rgba(120,119,198,0.1),_transparent_50%)] pointer-events-none"></div>
@@ -73,7 +72,7 @@ const App = () => {
         <div className="absolute top-40 right-20 w-1 h-1 bg-purple-500 rounded-full animate-pulse"></div>
         <div className="absolute bottom-40 left-20 w-1.5 h-1.5 bg-pink-500 rounded-full animate-bounce"></div>
       </div>
-    </MouseGlow>
+    </BackgroundFX>
   );
 };
 
