@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react';
 import MouseGlow from './MouseGlow';
-
-function HasTouchBG({ children }) {
-  return <div>{children}</div>
-}
+import TouchEffect from './TouchEffect';
 
 function BackgroundFX({ children }) {
   const [isTouch, setIsTouch] = useState(false);
@@ -16,7 +13,7 @@ function BackgroundFX({ children }) {
   }, []);
 
   if (isTouch) {
-    return <HasTouchBG>{children}</HasTouchBG>;
+    return <TouchEffect>{children}</TouchEffect>;
   } else {
     return <MouseGlow>{children}</MouseGlow>;
   }
