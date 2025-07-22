@@ -12,7 +12,7 @@ function Credits() {
             <div key={index} className="text-center group">
               <div className="relative mb-4">
                 <div className='flex justify-center'>
-                  <img class="w-[150px] h-[150px] rounded-full object-cover border-[3px] border-[#4B0082]" src={person.image} />
+                  <img className="w-[150px] h-[150px] rounded-full object-cover border-[3px] border-[#4B0082]" src={person.image} />
                 </div>
               </div>
               <div className="text-white font-medium">{person.name}</div>
