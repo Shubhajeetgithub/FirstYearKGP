@@ -253,7 +253,7 @@ function TimeTable() {
                     <div className="room">NC231</div>
                 </div>
                 </div>
-                <div className="time-slot empty">
+                <div className="time-slot">
                 <div className="time">2:00–2:55 PM</div>
                 <div className="subject-info">
                     <div className="subject">ML Lab</div>
@@ -274,7 +274,7 @@ function TimeTable() {
                     <div className="room">CIC Lab VI</div>
                 </div>
                 </div>
-                <div className="time-slot empty">
+                <div className="time-slot">
                 <div className="time">5:00–5:55 PM</div>
                 <div className="subject-info">
                     <div className="empty-slot">Free</div>
@@ -319,7 +319,7 @@ function TimeTable() {
                     <div className="empty-slot">Free</div>
                 </div>
                 </div>
-                <div className="time-slot empty">
+                <div className="time-slot">
                 <div className="time">2:00–2:55 PM</div>
                 <div className="subject-info">
                     <div className="subject">Algo lab</div>
@@ -333,7 +333,7 @@ function TimeTable() {
                     <div className="room">CIC Lab VI</div>
                 </div>
                 </div>
-                <div className="time-slot empty">
+                <div className="time-slot">
                 <div className="time">4:00–4:55 PM</div>
                 <div className="subject-info">
                     <div className="subject">Algo lab</div>
