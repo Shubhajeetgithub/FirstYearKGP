@@ -57,9 +57,9 @@ function TimeTable() {
                 <td><span className="subject">AI</span><br /><span className="room">NC231</span></td>
                 <td></td>
                 <td><span className="subject">ML</span><br /><span className="room">NC231</span></td>
-                <td></td>
                 <td><span className="subject">ML Lab</span><br /><span className="room">CIC Lab VI</span></td>
-                <td></td>
+                <td><span className="subject">ML Lab</span><br /><span className="room">CIC Lab VI</span></td>
+                <td><span className="subject">ML Lab</span><br /><span className="room">CIC Lab VI</span></td>
                 <td></td>
                 </tr>
                 <tr>
@@ -69,9 +69,9 @@ function TimeTable() {
                 <td></td>
                 <td><span className="subject">ML</span><br /><span className="room">NC231</span></td>
                 <td></td>
-                <td></td>
                 <td><span className="subject">Algo lab</span><br /><span className="room">CIC Lab VI</span></td>
-                <td></td>
+                <td><span className="subject">Algo lab</span><br /><span className="room">CIC Lab VI</span></td>
+                <td><span className="subject">Algo lab</span><br /><span className="room">CIC Lab VI</span></td>
                 <td></td>
                 </tr>
                 <tr>
@@ -256,7 +256,8 @@ function TimeTable() {
                 <div className="time-slot empty">
                 <div className="time">2:00–2:55 PM</div>
                 <div className="subject-info">
-                    <div className="empty-slot">Free</div>
+                    <div className="subject">ML Lab</div>
+                    <div className="room">CIC Lab VI</div>
                 </div>
                 </div>
                 <div className="time-slot">
@@ -269,7 +270,8 @@ function TimeTable() {
                 <div className="time-slot empty">
                 <div className="time">4:00–4:55 PM</div>
                 <div className="subject-info">
-                    <div className="empty-slot">Free</div>
+                    <div className="subject">ML Lab</div>
+                    <div className="room">CIC Lab VI</div>
                 </div>
                 </div>
                 <div className="time-slot empty">
@@ -320,7 +322,8 @@ function TimeTable() {
                 <div className="time-slot empty">
                 <div className="time">2:00–2:55 PM</div>
                 <div className="subject-info">
-                    <div className="empty-slot">Free</div>
+                    <div className="subject">Algo lab</div>
+                    <div className="room">CIC Lab VI</div>
                 </div>
                 </div>
                 <div className="time-slot">
@@ -333,7 +336,8 @@ function TimeTable() {
                 <div className="time-slot empty">
                 <div className="time">4:00–4:55 PM</div>
                 <div className="subject-info">
-                    <div className="empty-slot">Free</div>
+                    <div className="subject">Algo lab</div>
+                    <div className="room">CIC Lab VI</div>
                 </div>
                 </div>
                 <div className="time-slot empty">
