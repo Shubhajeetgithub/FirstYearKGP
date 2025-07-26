@@ -4,7 +4,7 @@ function Credits() {
   return (
     <div className="mt-16 mb-12 text-center relative z-10">
         <h3 className="text-2xl font-semibold mb-8 text-gray-300">Credits</h3>
-        <div className="flex justify-center gap-16">
+        <div className="flex justify-center gap-16 flex-wrap">
           {[
             { name: 'Shubhajeet Das', email: '(firstname)(lastname)(24.24)(at)(kgpian.iitkgp.ac.in)', image: 'https://github.com/Shubhajeetgithub/photos/blob/main/shubhajeet.jpeg?raw=true' },
             { name: 'Durva Daga', email: '(firstname)(lastname)(.24)(at)(kgpian.iitkgp.ac.in)', image: 'https://github.com/Shubhajeetgithub/photos/blob/main/durva.jpeg?raw=true' },
