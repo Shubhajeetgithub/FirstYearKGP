@@ -7,6 +7,7 @@ function Credits() {
         <div className="flex justify-center gap-16">
           {[
             { name: 'Shubhajeet Das', email: '(firstname)(lastname)(24.24)(at)(kgpian.iitkgp.ac.in)', image: 'https://github.com/Shubhajeetgithub/photos/blob/main/shubhajeet.jpeg?raw=true' },
+            { name: 'Durva Daga', email: '(firstname)(lastname)(.24)(at)(kgpian.iitkgp.ac.in)', image: 'https://github.com/Shubhajeetgithub/photos/blob/main/durva.jpeg?raw=true' },
             { name: 'Kingshuk Patra', email: '(firstname)(lastname)(2006.24)(at)(kgpian.iitkgp.ac.in)', image: 'https://github.com/Shubhajeetgithub/photos/blob/main/kingshuk.jpeg?raw=true' }
           ].map((person, index) => (
             <div key={index} className="text-center group">

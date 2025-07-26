@@ -12,10 +12,38 @@ const semesterData = {
         resources: [
           {
             name: "Tutorials",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/EmNgaK7lcAVMoYJ47Ig1WjQBiQ5NEuq0F5_pkb8SWGAlxw?e=uwC2vz",
+            icon: FileText,
+          },
+          {
+            name: "Lecture Notes",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/r/personal/durvadaga_24_kgpian_iitkgp_ac_in/Documents/Lecture%20PPTs_Sem1/Lecture%20PPTs/Advanced%20Calculus?csf=1&web=1&e=XOlXgn",
+            icon: FileText,
+          },
+          {
+            name: "Tutorials-solution",
             url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/shubhajeetdas24_24_kgpian_iitkgp_ac_in/EvbzH0FixhpBr03NaVuVQ-AB7VCUx_FurLcTppmwP2fBEA?e=bwTCWE",
             icon: FileText,
           },
-          { name: "Lecture Notes", url: "#", icon: BookOpen },
+          { name: "Books", url: "https://iitkgpacin-my.sharepoint.com/:b:/r/personal/durvadaga_24_kgpian_iitkgp_ac_in/Documents/Books_Sem1/Books/Advanced%20Calculus/Advanced%20Engineering%20Mathematics%20by%20ERWIN%20KREYSZIG%2010th%20Edition.pdf?csf=1&web=1&e=tEHlzh", icon: BookOpen },
+        ],
+      },
+      {
+        id: "bem",
+        name: "Basic Engineering Mechanics",
+        image:
+          "https://github.com/Shubhajeetgithub/photos/blob/main/bem.png?raw=true",
+        resources: [
+          {
+            name: "Books",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/r/personal/durvadaga_24_kgpian_iitkgp_ac_in/Documents/Books_Sem1/Books/Basic%20Engineering%20Mechanics?csf=1&web=1&e=oyBX8M",
+            icon: BookOpen,
+          },
+          {
+            name: "Tutorials",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/EmkAAgVOHQxInUG-dL1sq10BYjadlVLKXPZWLx_0qRMr3w?e=zFis91",
+            icon: FileText,
+          }
         ],
       },
       {
@@ -25,10 +53,97 @@ const semesterData = {
           "https://github.com/Shubhajeetgithub/photos/blob/main/PoW.png?raw=true",
         resources: [
           {
+            name: "Books",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/r/personal/durvadaga_24_kgpian_iitkgp_ac_in/Documents/Books_Sem1/Books/Physics%20of%20Waves?csf=1&web=1&e=eZrxfZ",
+            icon: BookOpen,
+          },
+          {
+            name: "Tutorials",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/EjxQqOhyhjJIgreYilX8MbQBEAuyvIIDJKDZs2nFBKU6kw?e=JOJ7Ua",
+            icon: FileText,
+          },
+          {
+            name: "Slides",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/r/personal/durvadaga_24_kgpian_iitkgp_ac_in/Documents/Lecture%20PPTs_Sem1/Lecture%20PPTs/PoW?csf=1&web=1&e=bCXGF9",
+            icon: BookOpen,
+          },
+          {
             name: "Short Notes",
             url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/shubhajeetdas24_24_kgpian_iitkgp_ac_in/EuuxkMtVi_RNitLAdo20fm4BVFuGr1Adzp7HuUt7tzu_8g?e=BvmJqQ",
             icon: FileText,
           },
+        ],
+      },
+      {
+        id: "pds",
+        name: "Programming and Data Structures",
+        image:
+          "https://github.com/Shubhajeetgithub/photos/blob/main/pds.png?raw=true",
+        resources: [
+          {
+            name: "Books",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/r/personal/durvadaga_24_kgpian_iitkgp_ac_in/Documents/Books_Sem1/Books/PDS?csf=1&web=1&e=ozQEQn",
+            icon: BookOpen,
+          },
+          {
+            name: "ppt",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/r/personal/durvadaga_24_kgpian_iitkgp_ac_in/Documents/Lecture%20PPTs_Sem1/Lecture%20PPTs/PDS?csf=1&web=1&e=NM4Q9w",
+            icon: FileText,
+          }
+        ],
+      },
+      {
+        id: "pds-lab",
+        name: "PDS Lab",
+        image:
+          "https://github.com/Shubhajeetgithub/photos/blob/main/pds.png?raw=true",
+        resources: [
+          {
+            name: "Assignments",
+            url: "https://drive.google.com/drive/folders/1MDwIGHglz38wPjejkmqZQjCnUP46xtzB?usp=sharing",
+            icon: FileText,
+          },
+        ],
+      },
+      {
+        id: "ed",
+        name: "Engineering Drawing",
+        image:
+          "https://github.com/Shubhajeetgithub/photos/blob/main/ed.png?raw=true",
+        resources: [
+          {
+            name: "Books",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/r/personal/durvadaga_24_kgpian_iitkgp_ac_in/Documents/Books_Sem1/Books/Engineering%20Drawing?csf=1&web=1&e=SYx37z",
+            icon: BookOpen,
+          },
+          {
+            name: "Tutorials",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/Ehge4ES4fwBOkYplrkHnAjkB4rIGvN0zlReU7aw45i_K3A?e=k9andp",
+            icon: FileText,
+          },
+          {
+            name: "slides",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/r/personal/durvadaga_24_kgpian_iitkgp_ac_in/Documents/Lecture%20PPTs_Sem1/Lecture%20PPTs/ED?csf=1&web=1&e=wKHFGh",
+            icon: FileText,
+          }
+        ],
+      },
+      {
+        id: "pyq",
+        name: "Previous Year Papers",
+        image:
+          "https://github.com/Shubhajeetgithub/photos/blob/main/pyqs.png?raw=true",
+        resources: [
+          {
+            name: "Book",
+            url: "https://iitkgpacin-my.sharepoint.com/:b:/r/personal/durvadaga_24_kgpian_iitkgp_ac_in/Documents/Books_Sem1/Books/PYQ_book.pdf?csf=1&web=1&e=cUZ2TG",
+            icon: BookOpen,
+          },
+          {
+            name: "Website",
+            url: "https://qp.metakgp.org/",
+            icon: FileText,
+          }
         ],
       },
     ],
