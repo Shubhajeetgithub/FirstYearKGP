@@ -30,7 +30,7 @@ function Welcome() {
 
   return (
     <div
-     className="mt-12 w-full max-w-2xl px-4 relative z-10">
+     className="mt-12 px-4 relative z-10 mx-auto">
       <div className="bg-gray-900/80 backdrop-blur-sm border border-gray-700 rounded-lg overflow-hidden shadow-2xl">
 
           <div className="bg-gray-800 px-4 py-3 flex items-center gap-2 border-b border-gray-700">
