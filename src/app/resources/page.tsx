@@ -127,10 +127,10 @@ export default function Resources() {
                         <Image
                             src={subject.image}
                             alt={subject.name}
-                            fill
-                            className="object-cover"
-                            sizes="48px"
-                            priority
+                            width={48}
+                            height={48}
+                            className="w-full h-full object-cover"
+                            unoptimized
                         />
                         </div>
                           <div className="flex-1">
