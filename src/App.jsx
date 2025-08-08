@@ -1,31 +1,13 @@
-import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
-import { NavLink } from 'react-router-dom';
-import BackgroundFX from './components/BackGroundFX';
+import React from "react";
+import { Outlet, NavLink } from "react-router-dom";
+import BackgroundFX from "./components/BackGroundFX";
 
 const App = () => {
-  const [activeTab, setActiveTab] = useState('Home');
   const navItems = [
-    {
-      id:1,
-      name:'Home',
-      route: '/',
-    },
-    {
-      id:2,
-      name:'TimeTable',
-      route:'/TimeTable',
-    },
-    {
-      id:3,
-      name:'Announcements',
-      route:'/Announcements',
-    },
-    {
-      id:4,
-      name:'Resources',
-      route:'/Resources',
-    },
+    { id: 1, name: "Home", route: "/" },
+    { id: 2, name: "TimeTable", route: "/TimeTable" },
+    { id: 3, name: "Announcements", route: "/Announcements" },
+    { id: 4, name: "Resources", route: "/Resources" },
   ];
 
   return (
@@ -34,7 +16,7 @@ const App = () => {
         {/* Background Pattern */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,_rgba(120,119,198,0.1),_transparent_50%)] pointer-events-none"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,_rgba(255,255,255,0.05),_transparent_50%)] pointer-events-none"></div>
-        
+
         {/* Header */}
         <header className="text-center mt-12 relative z-10">
           <h1 className="text-6xl font-bold mb-2 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse">
@@ -50,22 +32,23 @@ const App = () => {
         <nav className="flex gap-6 mt-12 relative z-10 flex-wrap justify-evenly">
           {navItems.map((item) => (
             <NavLink
-              to={`${item.route}`}
+              to={item.route}
               key={item.id}
-              onClick={() => setActiveTab(item.name)}
-              className={`px-6 py-3 rounded-lg border transition-all duration-300 transform hover:scale-105 ${
-                activeTab === item.name
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 border-blue-500 shadow-lg shadow-blue-500/25'
-                  : 'bg-gray-800/50 border-gray-600 hover:bg-gray-700/50 hover:border-gray-500'
-              } backdrop-blur-sm`}
+              className={({ isActive }) =>
+                `px-6 py-3 rounded-lg border transition-all duration-300 transform hover:scale-105 backdrop-blur-sm ${
+                  isActive
+                    ? "bg-gradient-to-r from-blue-600 to-purple-600 border-blue-500 shadow-lg shadow-blue-500/25"
+                    : "bg-gray-800/50 border-gray-600 hover:bg-gray-700/50 hover:border-gray-500"
+                }`
+              }
             >
               {item.name}
             </NavLink>
           ))}
         </nav>
-        
+
+        {/* Page Content */}
         <Outlet />
-        
 
         {/* Floating Elements */}
         <div className="absolute top-20 left-10 w-2 h-2 bg-blue-500 rounded-full animate-ping"></div>
