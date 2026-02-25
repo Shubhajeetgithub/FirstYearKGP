@@ -1,1 +1,3 @@
-This website is specifically alligned for students in AI department at IIT Kharagpur.
+# AI2024
+
+This is a clean rewrite of the project.
