@@ -1,8 +1,8 @@
--- Extensions pgcrypto for UUID type
+-- Extensions
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
--- ENUM Type for user_type and verification status
+-- ENUM Types
 
 CREATE TYPE user_type AS ENUM (
     'admin',
@@ -16,7 +16,20 @@ CREATE TYPE verification_status AS ENUM (
     'rejected'
 );
 
--- Users Table
+CREATE TYPE semester_time AS ENUM (
+    'autumn',
+    'spring'
+);
+
+CREATE TYPE document_category AS ENUM (
+    'assignment',
+    'notes',
+    'exam',
+    'project',
+    'other'
+);
+
+-- Users
 
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -25,31 +38,61 @@ CREATE TABLE users (
     name TEXT NOT NULL,
     nickname TEXT NOT NULL,
 
+    email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    email TEXT NOT NULL,
 
     entry_date DATE NOT NULL,
     deleted_at TIMESTAMP,
 
     user_type user_type NOT NULL DEFAULT 'normal',
 
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+
     CONSTRAINT user_is_from_ai_dept
-        CHECK (roll_no ~ '^[0-9]{2}AI[0-9]{5}$')
+        CHECK (roll_no ~ '^[0-9]{2}AI[0-9]{5}$'),
+
     CONSTRAINT email_valid
         CHECK (email ~ '^[^@]+@[^@]+\.[^@]+$')
 );
 
--- Documents Table (Posts + Comments Unified)
+-- Courses
+
+CREATE TABLE courses (
+    course_id TEXT PRIMARY KEY,  -- e.g. CS60050
+    course_name TEXT NOT NULL
+);
+
+-- Course Offerings (Course per Semester)
+
+CREATE TABLE course_offerings (
+    course_id TEXT NOT NULL,
+    semester_year INTEGER NOT NULL,
+    sem_time semester_time NOT NULL,
+    professor TEXT NOT NULL,
+
+    PRIMARY KEY (course_id, semester_year, sem_time, professor),
+
+    CONSTRAINT fk_course
+        FOREIGN KEY (course_id)
+        REFERENCES courses(course_id)
+        ON DELETE CASCADE
+);
+
+-- Documents (File-based Only)
 
 CREATE TABLE documents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     author_id UUID NOT NULL,
-    parent_id UUID,
 
-    title TEXT,
-    content TEXT,
-    s3_key TEXT,
+    title TEXT NOT NULL,
+    s3_key TEXT NOT NULL,
+
+    course_id TEXT NOT NULL,
+    semester_year INTEGER NOT NULL,
+    sem_time semester_time NOT NULL,
+
+    category document_category NOT NULL DEFAULT 'other',
 
     verification_status verification_status NOT NULL DEFAULT 'pending',
 
@@ -64,20 +107,13 @@ CREATE TABLE documents (
         REFERENCES users(id)
         ON DELETE CASCADE,
 
-    CONSTRAINT fk_documents_parent
-        FOREIGN KEY (parent_id)
-        REFERENCES documents(id)
-        ON DELETE SET NULL,
-
-    CONSTRAINT content_or_file_check
-        CHECK (
-            (content IS NOT NULL AND s3_key IS NULL)
-            OR
-            (content IS NULL AND s3_key IS NOT NULL)
-        )
+    CONSTRAINT fk_documents_course
+        FOREIGN KEY (course_id)
+        REFERENCES courses(course_id)
+        ON DELETE CASCADE
 );
 
--- Likes Table (Many-to-Many Relation)
+-- Likes (Many-to-Many)
 
 CREATE TABLE likes (
     user_id UUID NOT NULL,
@@ -97,7 +133,7 @@ CREATE TABLE likes (
         ON DELETE CASCADE
 );
 
--- Follows Table (Many-to-Many)
+-- Follows (User-to-User)
 
 CREATE TABLE follows (
     follower_id UUID NOT NULL,
@@ -120,7 +156,7 @@ CREATE TABLE follows (
         CHECK (follower_id <> following_id)
 );
 
--- for tokens
+-- Refresh Tokens (JWT Rotation)
 
 CREATE TABLE refresh_tokens (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -145,15 +181,15 @@ CREATE INDEX idx_documents_feed
 ON documents (created_at DESC)
 WHERE deleted_at IS NULL;
 
--- Threading lookup
-CREATE INDEX idx_documents_parent
-ON documents (parent_id);
+-- Course filtering
+CREATE INDEX idx_documents_course
+ON documents (course_id, semester_year, sem_time);
 
--- Fast like counting
+-- Like lookup
 CREATE INDEX idx_likes_document
 ON likes (document_id);
 
--- Following feed lookup
+-- Follow lookup
 CREATE INDEX idx_follows_follower
 ON follows (follower_id);
 
