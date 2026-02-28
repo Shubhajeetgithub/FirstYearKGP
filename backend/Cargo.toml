@@ -24,3 +24,4 @@ time = "0.3"
 axum-extra = { version = "0.12.5", features = ["cookie"] }
 sha2 = "0.10"
 hex = "0.4"
+anyhow = "1.0.102"

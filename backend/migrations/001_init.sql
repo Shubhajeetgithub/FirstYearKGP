@@ -40,8 +40,7 @@ CREATE TABLE users (
 
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-
-    entry_date DATE NOT NULL,
+    
     deleted_at TIMESTAMP,
 
     user_type user_type NOT NULL DEFAULT 'normal',
