@@ -1,8 +1,4 @@
--- Extensions
-
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
--- ENUM Types
+-- Custom Types & Enums
 
 CREATE TYPE user_type AS ENUM (
     'admin',
@@ -26,10 +22,11 @@ CREATE TYPE document_category AS ENUM (
     'notes',
     'exam',
     'project',
+    'comment',
     'other'
 );
 
--- Users
+-- Core Entities
 
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -41,11 +38,10 @@ CREATE TABLE users (
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
     
-    deleted_at TIMESTAMP,
+    role user_type NOT NULL DEFAULT 'normal', -- Renamed to prevent ORM mapping collisions
 
-    user_type user_type NOT NULL DEFAULT 'normal',
-
-    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMPTZ,
 
     CONSTRAINT user_is_from_ai_dept
         CHECK (roll_no ~ '^[0-9]{2}AI[0-9]{5}$'),
@@ -54,14 +50,10 @@ CREATE TABLE users (
         CHECK (email ~ '^[^@]+@[^@]+\.[^@]+$')
 );
 
--- Courses
-
 CREATE TABLE courses (
-    course_id TEXT PRIMARY KEY,  -- e.g. CS60050
+    course_id TEXT PRIMARY KEY,
     course_name TEXT NOT NULL
 );
-
--- Course Offerings (Course per Semester)
 
 CREATE TABLE course_offerings (
     course_id TEXT NOT NULL,
@@ -77,29 +69,36 @@ CREATE TABLE course_offerings (
         ON DELETE CASCADE
 );
 
--- Documents (File-based Only)
+-- Polymorphic Document Entity
 
 CREATE TABLE documents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
+    parent_id UUID,                     -- Self-referencing for comment trees
     author_id UUID NOT NULL,
 
-    title TEXT NOT NULL,
-    s3_key TEXT NOT NULL,
-
-    course_id TEXT NOT NULL,
-    semester_year INTEGER NOT NULL,
-    sem_time semester_time NOT NULL,
-
     category document_category NOT NULL DEFAULT 'other',
-
     verification_status verification_status NOT NULL DEFAULT 'pending',
+
+    -- Payload Data (Nullable to support varying document shapes)
+    title TEXT,
+    content TEXT,
+    s3_key TEXT,
+
+    -- Context Data (Completely optional metadata)
+    course_id TEXT,
+    semester_year INTEGER,
+    sem_time semester_time,
 
     like_count INTEGER NOT NULL DEFAULT 0 CHECK (like_count >= 0),
 
-    created_at TIMESTAMP NOT NULL DEFAULT now(),
-    updated_at TIMESTAMP,
-    deleted_at TIMESTAMP,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ,
+    deleted_at TIMESTAMPTZ,
+
+    CONSTRAINT fk_documents_parent
+        FOREIGN KEY (parent_id)
+        REFERENCES documents(id)
+        ON DELETE CASCADE,
 
     CONSTRAINT fk_documents_author
         FOREIGN KEY (author_id)
@@ -109,15 +108,22 @@ CREATE TABLE documents (
     CONSTRAINT fk_documents_course
         FOREIGN KEY (course_id)
         REFERENCES courses(course_id)
-        ON DELETE CASCADE
+        ON DELETE SET NULL,
+
+    -- STI State Machine: mathematically guarantees structural correctness per type
+    CONSTRAINT document_polymorphism_check
+        CHECK (
+            (category = 'comment' AND parent_id IS NOT NULL AND content IS NOT NULL AND TITLE IS NULL AND s3_key IS NULL) OR 
+            (category != 'comment' AND parent_id IS NULL AND title IS NOT NULL AND (content IS NOT NULL OR s3_key IS NOT NULL))
+        )
 );
 
--- Likes (Many-to-Many)
+-- Relational & Auth Tables
 
 CREATE TABLE likes (
     user_id UUID NOT NULL,
     document_id UUID NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
     PRIMARY KEY (user_id, document_id),
 
@@ -132,12 +138,10 @@ CREATE TABLE likes (
         ON DELETE CASCADE
 );
 
--- Follows (User-to-User)
-
 CREATE TABLE follows (
     follower_id UUID NOT NULL,
     following_id UUID NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
     PRIMARY KEY (follower_id, following_id),
 
@@ -155,17 +159,14 @@ CREATE TABLE follows (
         CHECK (follower_id <> following_id)
 );
 
--- Refresh Tokens (JWT Rotation)
-
 CREATE TABLE refresh_tokens (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
     user_id UUID NOT NULL,
     token_hash TEXT NOT NULL,
 
-    expires_at TIMESTAMP NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT now(),
-    revoked_at TIMESTAMP,
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    revoked_at TIMESTAMPTZ,
 
     CONSTRAINT fk_refresh_user
         FOREIGN KEY (user_id)
@@ -173,25 +174,18 @@ CREATE TABLE refresh_tokens (
         ON DELETE CASCADE
 );
 
--- Indexes
+-- Indexing
 
--- Feed index (only visible documents)
-CREATE INDEX idx_documents_feed
-ON documents (created_at DESC)
-WHERE deleted_at IS NULL;
+-- Hierarchy traversal (Critical for fetching comment trees)
+CREATE INDEX idx_documents_parent ON documents (parent_id);
 
--- Course filtering
-CREATE INDEX idx_documents_course
-ON documents (course_id, semester_year, sem_time);
+-- Soft-delete aware feed lookups
+CREATE INDEX idx_documents_feed ON documents (created_at DESC) WHERE deleted_at IS NULL;
 
--- Like lookup
-CREATE INDEX idx_likes_document
-ON likes (document_id);
+-- Metadata filtering
+CREATE INDEX idx_documents_course ON documents (course_id, semester_year, sem_time);
+CREATE INDEX idx_documents_author ON documents (author_id);
 
--- Follow lookup
-CREATE INDEX idx_follows_follower
-ON follows (follower_id);
-
--- Author lookup
-CREATE INDEX idx_documents_author
-ON documents (author_id);
+-- Reverse relationship lookups (PK handles the forward lookup)
+CREATE INDEX idx_likes_document ON likes (document_id);
+CREATE INDEX idx_follows_following ON follows (following_id);
