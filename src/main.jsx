@@ -4,8 +4,6 @@ import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } 
 import './index.css'
 import App from './App.jsx'
 import Home from './pages/Home.jsx'
-import TimeTable from './pages/TimeTable.jsx'
-import Announcements from './pages/Announcements.jsx'
 import Resources from './pages/Resources.jsx'
 
 const router = createBrowserRouter(
@@ -13,8 +11,6 @@ const router = createBrowserRouter(
     <>
     <Route path="/" element={<App />}>
       <Route path="" element={<Home />} />
-      <Route path="/Timetable" element={<TimeTable />} />
-      <Route path="/Announcements" element={<Announcements />} />
       <Route path="/Resources" element={<Resources />} />
     </Route>
     </>
