@@ -12,12 +12,12 @@ const semesterData = {
         resources: [
           {
             name: "Tutorials",
-            url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/EmNgaK7lcAVMoYJ47Ig1WjQBiQ5NEuq0F5_pkb8SWGAlxw?e=uwC2vz",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/IgBjYGiu5XAFTKGCeOyINVo0AYkOTRLqtBef6ZG_ElhgJcc?e=qaMG5D",
             icon: FileText,
           },
           {
             name: "Lecture Notes",
-            url: "https://iitkgpacin-my.sharepoint.com/:f:/r/personal/durvadaga_24_kgpian_iitkgp_ac_in/Documents/Lecture%20PPTs_Sem1/Lecture%20PPTs/Advanced%20Calculus?csf=1&web=1&e=XOlXgn",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/IgCliGHbwpL9TYX6zYEsKyB4Afv0J6YFly0mJSMOCP7Z0E8?e=SpNwXn",
             icon: FileText,
           },
           {
@@ -25,7 +25,7 @@ const semesterData = {
             url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/shubhajeetdas24_24_kgpian_iitkgp_ac_in/EvbzH0FixhpBr03NaVuVQ-AB7VCUx_FurLcTppmwP2fBEA?e=bwTCWE",
             icon: FileText,
           },
-          { name: "Books", url: "https://iitkgpacin-my.sharepoint.com/:b:/r/personal/durvadaga_24_kgpian_iitkgp_ac_in/Documents/Books_Sem1/Books/Advanced%20Calculus/Advanced%20Engineering%20Mathematics%20by%20ERWIN%20KREYSZIG%2010th%20Edition.pdf?csf=1&web=1&e=tEHlzh", icon: BookOpen },
+          { name: "Books", url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/IgACle9f4kHfRbjtNQJZto8lAeT73MefsRbpg2XpMjG_Nps?e=ad56yf", icon: BookOpen },
         ],
       },
       {
@@ -36,12 +36,12 @@ const semesterData = {
         resources: [
           {
             name: "Books",
-            url: "https://iitkgpacin-my.sharepoint.com/:f:/r/personal/durvadaga_24_kgpian_iitkgp_ac_in/Documents/Books_Sem1/Books/Basic%20Engineering%20Mechanics?csf=1&web=1&e=oyBX8M",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/IgB7RJ4bNrjwTaVAox8WuqIuAZIsCJ3yPWCmgcw-qXLuCxw?e=MLShLk",
             icon: BookOpen,
           },
           {
             name: "Tutorials",
-            url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/EmkAAgVOHQxInUG-dL1sq10BYjadlVLKXPZWLx_0qRMr3w?e=zFis91",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/IgBpAAIFTh0MSJ1BvnS9bKtdAWI2nZVSylz2Vi8f9KkTK98?e=zlOMsT",
             icon: FileText,
           }
         ],
@@ -54,17 +54,17 @@ const semesterData = {
         resources: [
           {
             name: "Books",
-            url: "https://iitkgpacin-my.sharepoint.com/:f:/r/personal/durvadaga_24_kgpian_iitkgp_ac_in/Documents/Books_Sem1/Books/Physics%20of%20Waves?csf=1&web=1&e=eZrxfZ",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/IgBBrA6EUHo0Sa83CNg0R_T_AeO4Kr1X-PcrPw2bj59Q4oo?e=axaSDr",
             icon: BookOpen,
           },
           {
             name: "Tutorials",
-            url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/EjxQqOhyhjJIgreYilX8MbQBEAuyvIIDJKDZs2nFBKU6kw?e=JOJ7Ua",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/IgA8UKjocoYySIK3mIpV_DG0ARALsryCAySg2bNpxQSlOpM?e=BAFw1H",
             icon: FileText,
           },
           {
             name: "Slides",
-            url: "https://iitkgpacin-my.sharepoint.com/:f:/r/personal/durvadaga_24_kgpian_iitkgp_ac_in/Documents/Lecture%20PPTs_Sem1/Lecture%20PPTs/PoW?csf=1&web=1&e=bCXGF9",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/IgCvcm-5gVAWSKKnia2rUGVcAfj5J-cySuPbLC0vLz_Dw5Y?e=AIflS8",
             icon: BookOpen,
           },
           {
@@ -82,12 +82,12 @@ const semesterData = {
         resources: [
           {
             name: "Books",
-            url: "https://iitkgpacin-my.sharepoint.com/:f:/r/personal/durvadaga_24_kgpian_iitkgp_ac_in/Documents/Books_Sem1/Books/PDS?csf=1&web=1&e=ozQEQn",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/IgA-NCwQKEGrQ7TzhsWq-MH0AUd75U16s9jMUUW2T06MOzk?e=nNE0n2",
             icon: BookOpen,
           },
           {
             name: "ppt",
-            url: "https://iitkgpacin-my.sharepoint.com/:f:/r/personal/durvadaga_24_kgpian_iitkgp_ac_in/Documents/Lecture%20PPTs_Sem1/Lecture%20PPTs/PDS?csf=1&web=1&e=NM4Q9w",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/IgAVVgQKAnw-RZ3w3uOTvyNeAay5opcI81-h4SJnYWqtl9A?e=D7OCoe",
             icon: FileText,
           }
         ],
@@ -113,17 +113,17 @@ const semesterData = {
         resources: [
           {
             name: "Books",
-            url: "https://iitkgpacin-my.sharepoint.com/:f:/r/personal/durvadaga_24_kgpian_iitkgp_ac_in/Documents/Books_Sem1/Books/Engineering%20Drawing?csf=1&web=1&e=SYx37z",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/IgBby3d2WjSAT5sU-3PvsbqSAYJG-pQB_ShKAASPmuwOnvY?e=nIUlXb",
             icon: BookOpen,
           },
           {
             name: "Tutorials",
-            url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/Ehge4ES4fwBOkYplrkHnAjkB4rIGvN0zlReU7aw45i_K3A?e=k9andp",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/IgAYHuBEuH8ATpGKZa5B5wI5AeKyBrzdM5UXlO2sOOYvytw?e=eRXD32",
             icon: FileText,
           },
           {
             name: "slides",
-            url: "https://iitkgpacin-my.sharepoint.com/:f:/r/personal/durvadaga_24_kgpian_iitkgp_ac_in/Documents/Lecture%20PPTs_Sem1/Lecture%20PPTs/ED?csf=1&web=1&e=wKHFGh",
+            url: "https://iitkgpacin-my.sharepoint.com/:f:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/IgCeN1pIH-LcTZuPVStWSBthAZGzBkCuNMdnKCj7A4MHI2A?e=JW1S9g",
             icon: FileText,
           }
         ],
@@ -136,7 +136,7 @@ const semesterData = {
         resources: [
           {
             name: "Book",
-            url: "https://iitkgpacin-my.sharepoint.com/:b:/r/personal/durvadaga_24_kgpian_iitkgp_ac_in/Documents/Books_Sem1/Books/PYQ_book.pdf?csf=1&web=1&e=cUZ2TG",
+            url: "https://iitkgpacin-my.sharepoint.com/:b:/g/personal/durvadaga_24_kgpian_iitkgp_ac_in/IQBvy7fpW8FITrLkDhBlLSw5AUsYqNwvsYlgu1u20_F3pIA?e=rwFfY8",
             icon: BookOpen,
           },
           {
