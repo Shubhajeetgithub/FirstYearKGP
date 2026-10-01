@@ -1,4 +1,5 @@
 import { BookOpen, FileText, Download } from "lucide-react";
+import { csvParseRows } from "d3-dsv";
 
 // Google Sheet published as CSV (File → Share → Publish to web → CSV).
 // Expected header row:
@@ -9,46 +10,6 @@ const SHEET_CSV_URL = import.meta.env.VITE_SHEET_CSV_URL;
 const FETCH_TIMEOUT_MS = 8000;
 
 const ICONS = { book: BookOpen, file: FileText, download: Download };
-
-// Minimal RFC 4180 CSV parser (handles quoted fields, escaped quotes, newlines in quotes).
-function parseCSV(text) {
-  const rows = [];
-  let row = [];
-  let field = "";
-  let inQuotes = false;
-
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i];
-    if (inQuotes) {
-      if (c === '"' && text[i + 1] === '"') {
-        field += '"';
-        i++;
-      } else if (c === '"') {
-        inQuotes = false;
-      } else {
-        field += c;
-      }
-    } else if (c === '"') {
-      inQuotes = true;
-    } else if (c === ",") {
-      row.push(field);
-      field = "";
-    } else if (c === "\n" || c === "\r") {
-      if (c === "\r" && text[i + 1] === "\n") i++;
-      row.push(field);
-      rows.push(row);
-      row = [];
-      field = "";
-    } else {
-      field += c;
-    }
-  }
-  if (field !== "" || row.length) {
-    row.push(field);
-    rows.push(row);
-  }
-  return rows;
-}
 
 function rowsToSemesterData(rows) {
   const [header, ...body] = rows;
@@ -101,7 +62,7 @@ export async function loadSemesterData() {
   try {
     const res = await fetch(SHEET_CSV_URL, { signal: controller.signal });
     if (!res.ok) throw new Error(`Sheet fetch failed: ${res.status}`);
-    const data = rowsToSemesterData(parseCSV(await res.text()));
+    const data = rowsToSemesterData(csvParseRows(await res.text()));
     if (!Object.keys(data).length) throw new Error("Sheet returned no data");
     return data;
   } finally {
