@@ -70,6 +70,8 @@ function rowsToSemesterData(rows) {
         id: subjectId,
         name: get(r, "subject_name"),
         image: get(r, "subject_image"),
+        semester: semKey,
+        semesterName: data[semKey].name,
         resources: [],
       };
       data[semKey].subjects.push(subject);
