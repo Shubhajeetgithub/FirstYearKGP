@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { Terminal, BookOpen } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
+const FEEDBACK_FORM_LINK = "https://forms.gle/bMiuhPwQ4ees6BDQ9";
+
 function Welcome() {
   const [terminalText, setTerminalText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
@@ -50,8 +52,13 @@ function Welcome() {
            <Link to="/Resources" className="px-8 py-3 rounded-full bg-white text-black font-semibold hover:bg-slate-200 transition-colors shadow-[0_0_40px_rgba(255,255,255,0.3)]">
              Browse Resources
            </Link>
-           <a href="#about" className="px-8 py-3 rounded-full bg-white/5 border border-white/10 text-white font-semibold hover:bg-white/10 transition-colors">
-             Learn More
+           <a
+             href={FEEDBACK_FORM_LINK}
+             target="_blank"
+             rel="noopener noreferrer"
+             className="px-8 py-3 rounded-full bg-white/5 border border-white/10 text-white font-semibold hover:bg-white/10 transition-colors"
+           >
+             Feedback Form
            </a>
         </div>
       </div>
