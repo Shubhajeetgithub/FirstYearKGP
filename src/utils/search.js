@@ -166,14 +166,51 @@ export function extractAllSubjects(data) {
 }
 
 /**
+ * Index of the first word of `name` at which `query` begins (the query may span several words),
+ * or -1 if the query does not start at a word boundary. Words are split on whitespace, '-', '_' and '/'.
+ *
+ * e.g. ("data", "Programming and Data Structures") -> 2, ("data", "Database Systems") -> 0,
+ *      ("data", "Metadata") -> -1
+ *
+ * @param {string} query
+ * @param {string} name
+ * @returns {number}
+ */
+export function wordMatchIndex(query, name) {
+  const q = splitWords(query).join(" ");
+  if (!q) return -1;
+  const words = splitWords(name);
+  for (let i = 0; i < words.length; i++) {
+    if (words.slice(i).join(" ").startsWith(q)) return i;
+  }
+  return -1;
+}
+
+function splitWords(text) {
+  return String(text || "")
+    .trim()
+    .toLowerCase()
+    .split(/[\s\-_/]+/)
+    .filter(Boolean);
+}
+
+/**
  * Searches subjects by name, id, or first-letter acronyms using Levenshtein distance.
- * Lowercases the query, calculates distance with name/id/acronyms, and returns
- * top `limit` results sorted in order of relevance (lowest distance first).
+ *
+ * Results are sorted by relevance: lowest distance first, then exact name/id matches, then
+ * subjects where the query starts an earlier word of the name (so "Data Science" ranks above
+ * "Programming and Data Structures" for "data"), then alphabetically by name.
+ *
+ * The best `minResults` subjects are always returned (fuzzy matches included, so typos and
+ * short queries still show something). Beyond that, only strong matches are added, up to
+ * `limit`. A strong match is one where the query starts a word of the name, the id starts with
+ * the query, or the query is exactly the subject's acronym.
  *
  * @param {string} query - The search query
  * @param {Array | Object} source - Array of subjects or semesterData map
  * @param {number} [limit=3] - Maximum results to return (defaults to 3)
- * @param {{ considerAcronyms?: boolean }} [options={ considerAcronyms: true }] - Search options
+ * @param {{ considerAcronyms?: boolean, minResults?: number }} [options] - Search options.
+ *   `minResults` defaults to `limit`, i.e. a fixed number of results.
  * @returns {Array} Top matching subjects with relevance metadata
  */
 export function searchSubjects(query, source, limit = 3, options = {}) {
@@ -182,6 +219,9 @@ export function searchSubjects(query, source, limit = 3, options = {}) {
 
   const maxResults = Number(limit);
   if (!(maxResults > 0)) return [];
+
+  const requestedMin = Number(options.minResults);
+  const minResults = requestedMin >= 0 ? Math.min(requestedMin, maxResults) : maxResults;
 
   const subjects = extractAllSubjects(source);
   if (!subjects.length) return [];
@@ -197,8 +237,8 @@ export function searchSubjects(query, source, limit = 3, options = {}) {
   }
   const uniqueSubjects = Array.from(uniqueSubjectsMap.values());
 
-  // Exact name/id matches, used to rank them above prefix matches that share the same distance
-  const exactMatches = new Set();
+  // Ranking metadata kept off the returned objects
+  const rankInfo = new Map();
 
   const scored = uniqueSubjects.map((subject) => {
     const { distance, matchedOn } = calculateSubjectDistance(q, subject, options);
@@ -209,7 +249,12 @@ export function searchSubjects(query, source, limit = 3, options = {}) {
     };
     const name = String(subject.name || "").trim().toLowerCase();
     const id = String(subject.id).trim().toLowerCase();
-    if (name === q || id === q) exactMatches.add(result);
+    const wordIndex = wordMatchIndex(q, name);
+    rankInfo.set(result, {
+      exact: name === q || id === q,
+      wordIndex: wordIndex === -1 ? Infinity : wordIndex,
+      strong: wordIndex !== -1 || id.startsWith(q) || (matchedOn === "acronym" && distance === 0),
+    });
     return result;
   });
 
@@ -218,14 +263,21 @@ export function searchSubjects(query, source, limit = 3, options = {}) {
     if (a._distance !== b._distance) {
       return a._distance - b._distance;
     }
-    const aExact = exactMatches.has(a);
-    const bExact = exactMatches.has(b);
-    if (aExact !== bExact) {
-      return aExact ? -1 : 1;
+    const ra = rankInfo.get(a);
+    const rb = rankInfo.get(b);
+    // Exact name/id matches beat prefix matches that share the same distance
+    if (ra.exact !== rb.exact) {
+      return ra.exact ? -1 : 1;
+    }
+    // Matches on an earlier word of the name come first
+    if (ra.wordIndex !== rb.wordIndex) {
+      return ra.wordIndex < rb.wordIndex ? -1 : 1;
     }
     // Tie-breaker: alphabetical by name
     return String(a.name || "").localeCompare(String(b.name || ""));
   });
 
-  return scored.slice(0, maxResults);
+  return scored
+    .filter((result, index) => index < minResults || rankInfo.get(result).strong)
+    .slice(0, maxResults);
 }

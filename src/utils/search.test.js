@@ -5,6 +5,7 @@ import {
   calculateSubjectDistance,
   extractAllSubjects,
   searchSubjects,
+  wordMatchIndex,
 } from "./search";
 
 const SUBJECTS = [
@@ -667,10 +668,7 @@ describe("searchSubjects: ranking invariants", () => {
   });
 });
 
-/*
- * Regression tests for previously known bugs. Anything still wrapped in `it.fails` is an open
- * defect: it asserts the desired behaviour, and once fixed `.fails` should be dropped.
- */
+/* Regression tests for previously fixed bugs. */
 describe("regressions in search.js", () => {
   it("calculateSubjectDistance reports matchedOn 'name' when only the name contains the query", () => {
     expect(calculateSubjectDistance("oo", { id: "CS21002", name: "Foo" }).matchedOn).toBe("name");
@@ -715,9 +713,131 @@ describe("regressions in search.js", () => {
   it("levenshteinDistance counts an astral-plane character (emoji) as one edit", () => {
     expect(levenshteinDistance("😀", "a")).toBe(1);
   });
+});
 
-  it.fails("searchSubjects does not return results for a query that matches nothing", () => {
-    // There is no relevance cutoff, so gibberish still returns `limit` results.
-    expect(searchSubjects("qqqqqqqqqqqq", SUBJECTS)).toEqual([]);
+describe("wordMatchIndex", () => {
+  it.each([
+    ["data", "Data Science", 0],
+    ["data", "Database Management Systems", 0],
+    ["data", "Programming and Data Structures", 2],
+    ["data structures", "Programming and Data Structures", 2],
+    ["data struct", "Programming and Data Structures", 2],
+    ["DATA", "programming and data structures", 2],
+    ["science", "Data-Science", 1],
+    ["output", "Input/Output", 1],
+    ["data", "Metadata Engineering", -1],
+    ["ata", "Data Science", -1],
+    ["data mining", "Data Science", -1],
+    ["", "Data Science", -1],
+    ["   ", "Data Science", -1],
+    ["data", "", -1],
+  ])("wordMatchIndex(%j, %j) === %i", (q, name, expected) => {
+    expect(wordMatchIndex(q, name)).toBe(expected);
+  });
+
+  it("normalises separators and spacing in the query", () => {
+    expect(wordMatchIndex("  data   structures ", "Programming and Data Structures")).toBe(2);
+    expect(wordMatchIndex("data-structures", "Programming and Data Structures")).toBe(2);
+  });
+
+  it("returns the earliest matching word", () => {
+    expect(wordMatchIndex("data", "Data and Data")).toBe(0);
+  });
+});
+
+describe("searchSubjects: flexible result count (minResults)", () => {
+  const CATALOGUE = [
+    { id: "CS10001", name: "Data Science" },
+    { id: "CS10002", name: "Programming and Data Structures" },
+    { id: "CS10003", name: "Database Management Systems" },
+    { id: "CS10004", name: "Data Mining" },
+    { id: "MA10001", name: "Advanced Calculus" },
+    { id: "PH10001", name: "Physics of Waves" },
+    { id: "EE10001", name: "Metadata Engineering" },
+    { id: "EE10002", name: "Basic Electronics" },
+    { id: "CS20001", name: "Reinforcement Learning" },
+  ];
+  const flexible = (q, limit = 12) => searchSubjects(q, CATALOGUE, limit, { minResults: 3 });
+
+  it("returns every subject with a word starting with the query, beyond minResults", () => {
+    expect(flexible("data").map((r) => r.name)).toEqual([
+      "Data Mining",
+      "Data Science",
+      "Database Management Systems",
+      "Programming and Data Structures",
+    ]);
+  });
+
+  it("does not pad strong matches with mid-word substring matches once minResults is met", () => {
+    expect(flexible("data").map((r) => r.name)).not.toContain("Metadata Engineering");
+  });
+
+  it("pads up to minResults with fuzzy matches when there are few strong matches", () => {
+    const res = flexible("calclus");
+    expect(res).toHaveLength(3);
+    expect(res[0].name).toBe("Advanced Calculus");
+  });
+
+  it("still returns minResults for an acronym query when acronyms are disabled", () => {
+    const res = searchSubjects("rl", CATALOGUE, 12, { minResults: 3, considerAcronyms: false });
+    expect(res).toHaveLength(3);
+  });
+
+  it("treats an exact acronym as a strong match", () => {
+    const res = searchSubjects("rl", CATALOGUE, 12, { minResults: 0 });
+    expect(res.map((r) => r.id)).toEqual(["CS20001"]);
+  });
+
+  it("treats an id prefix as a strong match", () => {
+    const res = searchSubjects("cs1", CATALOGUE, 12, { minResults: 0 });
+    expect(res.map((r) => r.id).sort()).toEqual(["CS10001", "CS10002", "CS10003", "CS10004"]);
+  });
+
+  it("returns only strong matches with minResults 0, so gibberish yields nothing", () => {
+    expect(searchSubjects("qqqqqqqq", CATALOGUE, 12, { minResults: 0 })).toEqual([]);
+  });
+
+  it("never exceeds limit, even with more strong matches", () => {
+    expect(flexible("data", 2)).toHaveLength(2);
+    expect(flexible("data", 2).map((r) => r.name)).toEqual(["Data Mining", "Data Science"]);
+  });
+
+  it("clamps minResults to limit", () => {
+    expect(searchSubjects("qqqqqqqq", CATALOGUE, 2, { minResults: 10 })).toHaveLength(2);
+  });
+
+  it("defaults minResults to limit (a fixed number of results)", () => {
+    expect(searchSubjects("data", CATALOGUE, 3)).toHaveLength(3);
+    expect(searchSubjects("qqqqqqqq", CATALOGUE, 3)).toHaveLength(3);
+    expect(searchSubjects("data", CATALOGUE, 3, { minResults: "nope" })).toHaveLength(3);
+  });
+
+  it("returns the same top results as a fixed limit would", () => {
+    const fixed = searchSubjects("data", CATALOGUE, 3).map((r) => r.id);
+    expect(flexible("data").slice(0, 3).map((r) => r.id)).toEqual(fixed);
+  });
+});
+
+describe("searchSubjects: first-word priority", () => {
+  it("ranks a match on an earlier word above the alphabetical order", () => {
+    const res = searchSubjects("systems", [
+      { id: "1", name: "Applied Systems" },
+      { id: "2", name: "Signals and Systems" },
+      { id: "3", name: "Systems Biology" },
+    ], 3);
+    expect(res.map((r) => r.name)).toEqual(["Systems Biology", "Applied Systems", "Signals and Systems"]);
+  });
+
+  it("ranks a name-prefix match above a later whole-word match", () => {
+    const res = searchSubjects("data", [
+      { id: "1", name: "Applied Data Analysis" },
+      { id: "2", name: "Database Systems" },
+    ], 2);
+    expect(res.map((r) => r.name)).toEqual(["Database Systems", "Applied Data Analysis"]);
+  });
+
+  it("does not add ranking metadata beyond _distance and _matchedOn", () => {
+    const [top] = searchSubjects("data", [{ id: "1", name: "Data Science" }]);
+    expect(Object.keys(top).sort()).toEqual(["_distance", "_matchedOn", "id", "name"]);
   });
 });

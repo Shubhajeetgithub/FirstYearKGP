@@ -19,10 +19,10 @@ function Resources() {
       });
   }, [attempt]);
 
-  // Compute top 3 relevant results using Levenshtein distance
+  // At least 3 results (fuzzy fallback), plus every other strong match up to 12
   const searchResults = useMemo(() => {
     if (!semesterData || !searchQuery.trim()) return [];
-    return searchSubjects(searchQuery, semesterData, 3);
+    return searchSubjects(searchQuery, semesterData, 12, { minResults: 3 });
   }, [semesterData, searchQuery]);
 
   if (error) {
@@ -95,7 +95,7 @@ function Resources() {
           <div className="flex items-center justify-between text-xs text-slate-400 mt-2 px-2">
             <span className="flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-              Top 3 matches ordered by relevance (Levenshtein distance)
+              Best matches ordered by relevance (Levenshtein distance)
             </span>
             <button
               onClick={() => setSearchQuery('')}
@@ -114,7 +114,7 @@ function Resources() {
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-6">
                 <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-                  <span>Top 3 Matches for</span>
+                  <span>Matches for</span>
                   <span className="text-indigo-400 bg-indigo-500/10 px-2.5 py-0.5 rounded-lg border border-indigo-500/20 font-mono text-sm">
                     "{searchQuery}"
                   </span>
@@ -328,4 +328,4 @@ function SubjectCard({ subject, showSemesterBadge = false, rank = null, onNaviga
   );
 }
 
-export default Resources;
+export default Resources;
