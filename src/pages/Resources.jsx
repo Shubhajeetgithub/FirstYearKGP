@@ -76,7 +76,7 @@ function Resources() {
              </button>
           ))}
           {/* Coming Soon Placeholders */}
-           {[4, 5, 6, 7, 8].filter((semNum) => !semesterData[`s${semNum}`]).map((semNum) => (
+           {[6, 7, 8].filter((semNum) => !semesterData[`s${semNum}`]).map((semNum) => (
               <button
               key={`s${semNum}`}
               disabled
