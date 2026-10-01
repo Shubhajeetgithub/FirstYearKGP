@@ -36,7 +36,10 @@ export function levenshteinDistance(a = "", b = "") {
   return prev[n];
 }
 
-const STOP_WORDS = new Set(["and", "of", "in", "to", "for", "the", "a", "an", "with", "on", "at", "&"]);
+const STOP_WORDS = new Set([
+  "and", "of", "in", "to", "for", "the", "a", "an", "with", "on", "at", "&",
+  "by", "from", "or", "as", "into", "via", "vs", "its", "is", "are", "through", "using",
+]);
 
 /**
  * Extracts first-letter initials / acronyms from a subject name.
