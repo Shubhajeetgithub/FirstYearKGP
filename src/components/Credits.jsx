@@ -7,8 +7,8 @@ function Credits() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             { name: 'Shubhajeet Das', email: 'shubhajeet [at] kgpian.iitkgp.ac.in', image: 'https://github.com/Shubhajeetgithub/photos/blob/main/shubhajeet.jpeg?raw=true' },
-            { name: 'Durva Daga', email: 'durva [at] kgpian.iitkgp.ac.in', image: 'https://github.com/Shubhajeetgithub/photos/blob/main/durva.jpeg?raw=true' },
-            { name: 'Kingshuk Patra', email: 'kingshuk [at] kgpian.iitkgp.ac.in', image: 'https://github.com/Shubhajeetgithub/photos/blob/main/kingshuk.jpeg?raw=true' }
+            { name: 'Kingshuk Patra', email: 'kingshuk [at] kgpian.iitkgp.ac.in', image: 'https://github.com/Shubhajeetgithub/photos/blob/main/kingshuk.jpeg?raw=true' },
+            { name: 'Durva Daga', email: 'durva [at] kgpian.iitkgp.ac.in', image: 'https://github.com/Shubhajeetgithub/photos/blob/main/durva.jpeg?raw=true' }
           ].map((person, index) => (
             <div key={index} className="group relative rounded-2xl p-6 bg-white/5 border border-white/5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:bg-white/10 hover:border-indigo-500/30">
               <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 to-purple-500/0 group-hover:from-indigo-500/10 group-hover:to-purple-500/10 rounded-2xl transition-all duration-300"></div>
