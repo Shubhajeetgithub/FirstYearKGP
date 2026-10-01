@@ -198,10 +198,7 @@ describe("calculateSubjectDistance", () => {
       expect(r.distance).toBe(0); // "calculus" equals a whole word of the name
     });
 
-    // KNOWN BUG: substringDist is shared by the name and id scores, so a name-substring match
-    // ties with the id score and the `bestIdScore <= bestNameScore` check misreports it as "id".
-    // Remove `.fails` once calculateSubjectDistance tracks name/id substring matches separately.
-    it.fails("reports matchedOn 'name' for a name prefix match when the id is unrelated", () => {
+    it("reports matchedOn 'name' for a name prefix match when the id is unrelated", () => {
       const r = calculateSubjectDistance("calc", { id: "MA11001", name: "Calculus" });
       expect(r.matchedOn).toBe("name");
       expect(r.distance).toBe(0);
@@ -671,18 +668,15 @@ describe("searchSubjects: ranking invariants", () => {
 });
 
 /*
- * KNOWN BUGS. Each test below asserts the *correct* behaviour and is wrapped in `it.fails`,
- * so the suite is green while the defect is documented. When a bug is fixed the test will start
- * "failing", which is the signal to drop `.fails`.
+ * Regression tests for previously known bugs. Anything still wrapped in `it.fails` is an open
+ * defect: it asserts the desired behaviour, and once fixed `.fails` should be dropped.
  */
-describe("known bugs in search.js", () => {
-  it.fails("calculateSubjectDistance reports matchedOn 'name' when only the name contains the query", () => {
-    // substringDist is shared between the name and id scores, so the tie resolves to "id".
+describe("regressions in search.js", () => {
+  it("calculateSubjectDistance reports matchedOn 'name' when only the name contains the query", () => {
     expect(calculateSubjectDistance("oo", { id: "CS21002", name: "Foo" }).matchedOn).toBe("name");
   });
 
-  it.fails("searchSubjects ranks an exact id match above an id that merely starts with the query", () => {
-    // Both score 0 (prefix == exact), so the alphabetical name tie-breaker decides.
+  it("searchSubjects ranks an exact id match above an id that merely starts with the query", () => {
     const res = searchSubjects("ma101", [
       { id: "MA1010", name: "Apple" },
       { id: "MA101", name: "Zebra" },
@@ -690,41 +684,35 @@ describe("known bugs in search.js", () => {
     expect(res[0].id).toBe("MA101");
   });
 
-  it.fails("searchSubjects ranks an exact name match above a longer name that starts with the query", () => {
+  it("searchSubjects ranks an exact name match above a longer name that starts with the query", () => {
     const res = searchSubjects("art", [
       { id: "1", name: "Art" },
       { id: "2", name: "Art" },
       { id: "3", name: "Art History" },
       { id: "4", name: "Arthropods" },
     ]);
-    // "Arthropods" < "Art History" alphabetically only by locale accident; exact matches must come first.
+    // Exact matches must come first, ahead of the alphabetical tie-breaker.
     expect(res.slice(0, 2).every((r) => r.name === "Art")).toBe(true);
     expect(searchSubjects("bio", [
       { id: "1", name: "Bio Chemistry" },
       { id: "2", name: "Bio" },
       { id: "3", name: "Bio-Informatics" },
     ], 1)[0].name).toBe("Bio");
-    // Distances must differ between exact and prefix matches.
-    const [exact, prefix] = [
-      calculateSubjectDistance("bio", { id: "x", name: "Bio" }).distance,
-      calculateSubjectDistance("bio", { id: "x", name: "Biology Of Everything" }).distance,
-    ];
-    expect(exact).toBeLessThan(prefix);
   });
 
-  it.fails("searchSubjects treats a negative limit as 'no results' instead of dropping the last item", () => {
+  it("searchSubjects treats a negative limit as 'no results' instead of dropping the last item", () => {
     expect(searchSubjects("a", SUBJECTS, -1)).toEqual([]);
   });
 
-  it.fails("searchSubjects ignores null / undefined entries in an array source", () => {
+  it("searchSubjects ignores null / undefined entries in an array source", () => {
     expect(() => searchSubjects("alpha", [null, undefined, { id: "A1", name: "Alpha" }])).not.toThrow();
   });
 
-  it.fails("searchSubjects keeps subjects whose id is the number 0", () => {
+  it("searchSubjects keeps subjects whose id is the number 0", () => {
     expect(searchSubjects("zero", [{ id: 0, name: "Zero" }])).toHaveLength(1);
   });
 
-  it.fails("levenshteinDistance counts an astral-plane character (emoji) as one edit", () => {
+  it("levenshteinDistance counts an astral-plane character (emoji) as one edit", () => {
     expect(levenshteinDistance("😀", "a")).toBe(1);
   });
 

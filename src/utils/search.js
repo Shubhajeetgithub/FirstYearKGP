@@ -7,8 +7,9 @@
  * @returns {number}
  */
 export function levenshteinDistance(a = "", b = "") {
-  const s1 = String(a);
-  const s2 = String(b);
+  // Compare by code point so astral characters (e.g. emoji) count as a single edit
+  const s1 = Array.from(String(a));
+  const s2 = Array.from(String(b));
   const m = s1.length;
   const n = s2.length;
 
@@ -63,6 +64,19 @@ export function getSubjectAcronyms(name = "") {
 }
 
 /**
+ * Distance contributed by `q` appearing verbatim inside `text`.
+ *
+ * @param {string} q
+ * @param {string} text
+ * @returns {number} 0 if `text` starts with `q`, 0.5 if it contains it elsewhere, Infinity otherwise
+ */
+function substringDistance(q, text) {
+  const index = text.indexOf(q);
+  if (index === -1) return Infinity;
+  return index === 0 ? 0 : 0.5;
+}
+
+/**
  * Computes the relevance score (distance) of a subject given a query.
  * Lower score = higher relevance / closer match.
  *
@@ -107,21 +121,16 @@ export function calculateSubjectDistance(query, subject, options = {}) {
     }
   }
 
-  // Exact substring containment bonus/reduction
-  let substringDist = Infinity;
-  if (name.includes(q)) {
-    // If the query is an exact substring, distance is scaled relative to match quality
-    substringDist = Math.max(0, name.indexOf(q) === 0 ? 0 : 0.5);
-  } else if (id.includes(q)) {
-    substringDist = Math.max(0, id.indexOf(q) === 0 ? 0 : 0.5);
-  }
+  // Exact substring containment: 0 for a prefix, 0.5 elsewhere. Scored separately for name and id
+  // so a name match is not attributed to the id (and vice versa).
+  const nameSubstringDist = substringDistance(q, name);
+  const idSubstringDist = substringDistance(q, id);
 
   // Calculate best distance for name, id, and acronym
-  const bestNameScore = Math.min(nameDist, minWordDist, substringDist);
-  const bestIdScore = Math.min(idDist, substringDist);
-  const bestScore = Math.min(bestNameScore, bestIdScore, minAcronymDist);
+  const bestNameScore = Math.min(nameDist, minWordDist, nameSubstringDist);
+  const bestIdScore = Math.min(idDist, idSubstringDist);
 
-  if (bestScore === minAcronymDist && minAcronymDist < bestNameScore && minAcronymDist < bestIdScore) {
+  if (minAcronymDist < bestNameScore && minAcronymDist < bestIdScore) {
     return { distance: minAcronymDist, matchedOn: "acronym" };
   }
   if (bestIdScore <= bestNameScore) {
@@ -144,6 +153,7 @@ export function extractAllSubjects(data) {
   for (const [semKey, semVal] of Object.entries(data)) {
     if (semVal && Array.isArray(semVal.subjects)) {
       for (const sub of semVal.subjects) {
+        if (!sub || typeof sub !== "object") continue;
         subjects.push({
           ...sub,
           semester: sub.semester || semKey,
@@ -170,25 +180,37 @@ export function searchSubjects(query, source, limit = 3, options = {}) {
   const q = String(query || "").trim().toLowerCase();
   if (!q) return [];
 
+  const maxResults = Number(limit);
+  if (!(maxResults > 0)) return [];
+
   const subjects = extractAllSubjects(source);
   if (!subjects.length) return [];
 
-  // Remove duplicates by subject id if any
+  // Remove duplicates by subject id if any; skip malformed entries and subjects without an id
   const uniqueSubjectsMap = new Map();
   for (const s of subjects) {
-    if (s.id && !uniqueSubjectsMap.has(s.id)) {
+    if (!s || typeof s !== "object") continue;
+    if (s.id == null || s.id === "") continue;
+    if (!uniqueSubjectsMap.has(s.id)) {
       uniqueSubjectsMap.set(s.id, s);
     }
   }
   const uniqueSubjects = Array.from(uniqueSubjectsMap.values());
 
+  // Exact name/id matches, used to rank them above prefix matches that share the same distance
+  const exactMatches = new Set();
+
   const scored = uniqueSubjects.map((subject) => {
     const { distance, matchedOn } = calculateSubjectDistance(q, subject, options);
-    return {
+    const result = {
       ...subject,
       _distance: distance,
       _matchedOn: matchedOn,
     };
+    const name = String(subject.name || "").trim().toLowerCase();
+    const id = String(subject.id).trim().toLowerCase();
+    if (name === q || id === q) exactMatches.add(result);
+    return result;
   });
 
   // Sort by ascending distance (lowest distance is most relevant)
@@ -196,9 +218,14 @@ export function searchSubjects(query, source, limit = 3, options = {}) {
     if (a._distance !== b._distance) {
       return a._distance - b._distance;
     }
+    const aExact = exactMatches.has(a);
+    const bExact = exactMatches.has(b);
+    if (aExact !== bExact) {
+      return aExact ? -1 : 1;
+    }
     // Tie-breaker: alphabetical by name
     return String(a.name || "").localeCompare(String(b.name || ""));
   });
 
-  return scored.slice(0, limit);
+  return scored.slice(0, maxResults);
 }
