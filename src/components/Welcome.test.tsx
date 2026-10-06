@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Welcome from "./Welcome";
+import { required } from "../test/required";
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -37,7 +38,7 @@ describe("Welcome", () => {
 
   it("blinks the cursor every 500ms", () => {
     const { container } = renderWelcome();
-    const cursor = () => container.querySelector(".bg-indigo-300.inline-block");
+    const cursor = () => required(container.querySelector(".bg-indigo-300.inline-block"));
     expect(cursor().className).toContain("opacity-100");
     act(() => vi.advanceTimersByTime(500));
     expect(cursor().className).toContain("opacity-0");

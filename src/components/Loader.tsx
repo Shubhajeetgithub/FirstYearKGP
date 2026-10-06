@@ -1,6 +1,12 @@
 import React from "react";
 
-export default function Loader({ size = 48, text = "Loading..." }) {
+interface LoaderProps {
+  /** Spinner width and height in px. */
+  size?: number;
+  text?: string;
+}
+
+export default function Loader({ size = 48, text = "Loading..." }: LoaderProps) {
   return (
     <div className="flex flex-col items-center justify-center gap-2">
       <div

@@ -3,8 +3,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import BackgroundFX from "./BackGroundFX";
 
-function stubPointer(coarse) {
-  vi.stubGlobal("matchMedia", vi.fn((query) => ({ matches: coarse && query === "(pointer: coarse)" })));
+function stubPointer(coarse: boolean) {
+  vi.stubGlobal("matchMedia", vi.fn((query: string) => ({ matches: coarse && query === "(pointer: coarse)" })));
 }
 
 afterEach(() => {
@@ -13,7 +13,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-const mouseGlowOverlay = (container) => container.querySelector(".pointer-events-none.fixed");
+const mouseGlowOverlay = (container: HTMLElement) => container.querySelector(".pointer-events-none.fixed");
 
 describe("BackgroundFX", () => {
   it("uses the mouse glow on fine pointers", () => {

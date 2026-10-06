@@ -2,13 +2,16 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, render, screen } from "@testing-library/react";
 import MouseGlow from "./MouseGlow";
+import { required } from "../test/required";
 
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
 });
 
-const glowOf = (container) => container.firstChild.firstChild;
+// The overlay is the first child of the wrapper div.
+const glowOf = (container: HTMLElement) =>
+  required(container.querySelector<HTMLElement>(":scope > div > div:first-child"));
 
 describe("MouseGlow", () => {
   it("renders its children after a fixed glow overlay", () => {

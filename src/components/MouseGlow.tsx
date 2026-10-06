@@ -1,10 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 
-function MouseGlow({ children }) {
-  const [coords, setCoords] = useState({ x: 0, y: 0 });
+interface Point {
+  x: number;
+  y: number;
+}
+
+interface MouseGlowProps {
+  children?: ReactNode;
+}
+
+function MouseGlow({ children }: MouseGlowProps) {
+  const [coords, setCoords] = useState<Point>({ x: 0, y: 0 });
 
   useEffect(() => {
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e: MouseEvent) => {
       setCoords({ x: e.clientX, y: e.clientY });
     };
     window.addEventListener('mousemove', handleMouseMove);

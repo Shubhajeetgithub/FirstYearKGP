@@ -11,16 +11,19 @@ afterEach(() => {
   cleanup();
   vi.useRealTimers();
   vi.restoreAllMocks();
-  document.body.querySelectorAll("div[style]").forEach((el) => el.remove());
+  document.body.querySelectorAll<HTMLElement>("div[style]").forEach((el) => el.remove());
 });
 
-function touch(x, y) {
-  const event = new Event("touchstart");
-  event.touches = [{ clientX: x, clientY: y }];
+// jsdom has no Touch constructor, so attach a minimal touches list to a plain event.
+function touch(x: number, y: number) {
+  const event = Object.assign(new Event("touchstart"), { touches: [{ clientX: x, clientY: y }] });
   window.dispatchEvent(event);
 }
 
-const glows = () => [...document.body.children].filter((el) => el.style.borderRadius === "50%");
+const glows = () =>
+  Array.from(document.body.querySelectorAll<HTMLElement>(":scope > *")).filter(
+    (el) => el.style.borderRadius === "50%"
+  );
 
 describe("TouchEffect", () => {
   it("renders its children", () => {
