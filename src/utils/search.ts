@@ -1,12 +1,18 @@
+import type {
+  DistanceOptions,
+  SearchableSubject,
+  SearchOptions,
+  SearchResult,
+  SubjectDistance,
+  SubjectSource,
+  WithSemester,
+} from "../types/search";
+
 /**
  * Computes the Levenshtein distance (edit distance) between two strings.
  * Space-optimized O(min(m, n)) dynamic programming implementation.
- *
- * @param {string} a
- * @param {string} b
- * @returns {number}
  */
-export function levenshteinDistance(a = "", b = "") {
+export function levenshteinDistance(a: string = "", b: string = ""): number {
   // Compare by code point so astral characters (e.g. emoji) count as a single edit
   const s1 = Array.from(String(a));
   const s2 = Array.from(String(b));
@@ -16,8 +22,8 @@ export function levenshteinDistance(a = "", b = "") {
   if (m === 0) return n;
   if (n === 0) return m;
 
-  let prev = Array.from({ length: n + 1 }, (_, i) => i);
-  let curr = new Array(n + 1);
+  const prev = Array.from({ length: n + 1 }, (_, i) => i);
+  const curr = new Array<number>(n + 1);
 
   for (let i = 1; i <= m; i++) {
     curr[0] = i;
@@ -45,10 +51,9 @@ const STOP_WORDS = new Set([
  * Extracts first-letter initials / acronyms from a subject name.
  * Returns both full initials and significant-words initials (omitting stop words).
  *
- * @param {string} name
- * @returns {string[]} List of acronym strings
+ * @returns List of acronym strings
  */
-export function getSubjectAcronyms(name = "") {
+export function getSubjectAcronyms(name: string = ""): string[] {
   const words = String(name || "")
     .toLowerCase()
     .split(/[\s\-_/]+/)
@@ -69,11 +74,9 @@ export function getSubjectAcronyms(name = "") {
 /**
  * Distance contributed by `q` appearing verbatim inside `text`.
  *
- * @param {string} q
- * @param {string} text
- * @returns {number} 0 if `text` starts with `q`, 0.5 if it contains it elsewhere, Infinity otherwise
+ * @returns 0 if `text` starts with `q`, 0.5 if it contains it elsewhere, Infinity otherwise
  */
-function substringDistance(q, text) {
+function substringDistance(q: string, text: string): number {
   const index = text.indexOf(q);
   if (index === -1) return Infinity;
   return index === 0 ? 0 : 0.5;
@@ -83,12 +86,15 @@ function substringDistance(q, text) {
  * Computes the relevance score (distance) of a subject given a query.
  * Lower score = higher relevance / closer match.
  *
- * @param {string} query - The search query.
- * @param {{ id?: string, name?: string }} subject - Subject object with id and name.
- * @param {{ considerAcronyms?: boolean }} [options={ considerAcronyms: true }] - Search options
- * @returns {{ distance: number, matchedOn: 'id' | 'name' | 'acronym' }}
+ * @param query - The search query.
+ * @param subject - Subject object with id and name.
+ * @param [options] - Search options
  */
-export function calculateSubjectDistance(query, subject, options = {}) {
+export function calculateSubjectDistance(
+  query: string,
+  subject: SearchableSubject,
+  options: DistanceOptions = {}
+): SubjectDistance {
   const { considerAcronyms = true } = options;
   const q = String(query || "").trim().toLowerCase();
   if (!q) {
@@ -145,14 +151,24 @@ export function calculateSubjectDistance(query, subject, options = {}) {
 /**
  * Flatten semesterData dictionary or accept array of subjects.
  *
- * @param {Array | Object} data
- * @returns {Array} List of subjects
+ * @returns List of subjects
  */
-export function extractAllSubjects(data) {
+export function extractAllSubjects<S extends SearchableSubject>(
+  data: readonly (S | null | undefined)[]
+): readonly (S | null | undefined)[];
+export function extractAllSubjects<S extends SearchableSubject>(
+  data?: Exclude<SubjectSource<S>, readonly unknown[]>
+): WithSemester<S>[];
+export function extractAllSubjects<S extends SearchableSubject>(
+  data?: SubjectSource<S>
+): readonly (S | null | undefined)[];
+export function extractAllSubjects<S extends SearchableSubject>(
+  data?: SubjectSource<S>
+): readonly (S | null | undefined)[] {
   if (!data) return [];
-  if (Array.isArray(data)) return data;
+  if (isSubjectList(data)) return data;
 
-  const subjects = [];
+  const subjects: WithSemester<S>[] = [];
   for (const [semKey, semVal] of Object.entries(data)) {
     if (semVal && Array.isArray(semVal.subjects)) {
       for (const sub of semVal.subjects) {
@@ -175,11 +191,8 @@ export function extractAllSubjects(data) {
  * e.g. ("data", "Programming and Data Structures") -> 2, ("data", "Database Systems") -> 0,
  *      ("data", "Metadata") -> -1
  *
- * @param {string} query
- * @param {string} name
- * @returns {number}
  */
-export function wordMatchIndex(query, name) {
+export function wordMatchIndex(query: string, name: string): number {
   const q = splitWords(query).join(" ");
   if (!q) return -1;
   const words = splitWords(name);
@@ -189,7 +202,7 @@ export function wordMatchIndex(query, name) {
   return -1;
 }
 
-function splitWords(text) {
+function splitWords(text: string): string[] {
   return String(text || "")
     .trim()
     .toLowerCase()
@@ -209,14 +222,37 @@ function splitWords(text) {
  * `limit`. A strong match is one where the query starts a word of the name, the id starts with
  * the query, or the query is exactly the subject's acronym.
  *
- * @param {string} query - The search query
- * @param {Array | Object} source - Array of subjects or semesterData map
- * @param {number} [limit=3] - Maximum results to return (defaults to 3)
- * @param {{ considerAcronyms?: boolean, minResults?: number }} [options] - Search options.
+ * @param query - The search query
+ * @param source - Array of subjects or semesterData map
+ * @param [limit=3] - Maximum results to return (defaults to 3)
+ * @param [options] - Search options.
  *   `minResults` defaults to `limit`, i.e. a fixed number of results.
- * @returns {Array} Top matching subjects with relevance metadata
+ * @returns Top matching subjects with relevance metadata
  */
-export function searchSubjects(query, source, limit = 3, options = {}) {
+export function searchSubjects<S extends SearchableSubject>(
+  query: string,
+  source: readonly (S | null | undefined)[],
+  limit?: number,
+  options?: SearchOptions
+): SearchResult<S>[];
+export function searchSubjects<S extends SearchableSubject>(
+  query: string,
+  source: Exclude<SubjectSource<S>, readonly unknown[]>,
+  limit?: number,
+  options?: SearchOptions
+): SearchResult<WithSemester<S>>[];
+export function searchSubjects<S extends SearchableSubject>(
+  query: string,
+  source: SubjectSource<S>,
+  limit?: number,
+  options?: SearchOptions
+): SearchResult<S>[];
+export function searchSubjects<S extends SearchableSubject>(
+  query: string,
+  source: SubjectSource<S>,
+  limit: number = 3,
+  options: SearchOptions = {}
+): SearchResult<S>[] {
   const q = String(query || "").trim().toLowerCase();
   if (!q) return [];
 
@@ -230,7 +266,7 @@ export function searchSubjects(query, source, limit = 3, options = {}) {
   if (!subjects.length) return [];
 
   // Remove duplicates by subject id if any; skip malformed entries and subjects without an id
-  const uniqueSubjectsMap = new Map();
+  const uniqueSubjectsMap = new Map<string | number, S>();
   for (const s of subjects) {
     if (!s || typeof s !== "object") continue;
     if (s.id == null || s.id === "") continue;
@@ -241,11 +277,11 @@ export function searchSubjects(query, source, limit = 3, options = {}) {
   const uniqueSubjects = Array.from(uniqueSubjectsMap.values());
 
   // Ranking metadata kept off the returned objects
-  const rankInfo = new Map();
+  const rankInfo = new Map<SearchResult<S>, RankInfo>();
 
   const scored = uniqueSubjects.map((subject) => {
     const { distance, matchedOn } = calculateSubjectDistance(q, subject, options);
-    const result = {
+    const result: SearchResult<S> = {
       ...subject,
       _distance: distance,
       _matchedOn: matchedOn,
@@ -266,8 +302,8 @@ export function searchSubjects(query, source, limit = 3, options = {}) {
     if (a._distance !== b._distance) {
       return a._distance - b._distance;
     }
-    const ra = rankInfo.get(a);
-    const rb = rankInfo.get(b);
+    const ra = rankInfo.get(a)!; // every scored result was added to rankInfo above
+    const rb = rankInfo.get(b)!; // every scored result was added to rankInfo above
     // Exact name/id matches beat prefix matches that share the same distance
     if (ra.exact !== rb.exact) {
       return ra.exact ? -1 : 1;
@@ -281,6 +317,22 @@ export function searchSubjects(query, source, limit = 3, options = {}) {
   });
 
   return scored
-    .filter((result, index) => index < minResults || rankInfo.get(result).strong)
+    .filter((result, index) => index < minResults || rankInfo.get(result)!.strong) // set for every result above
     .slice(0, maxResults);
+}
+
+interface RankInfo {
+  /** The query equals the whole name or id. */
+  exact: boolean;
+  /** Index of the name word the query starts at; `Infinity` when it starts at none. */
+  wordIndex: number;
+  /** Shown even beyond `minResults`. */
+  strong: boolean;
+}
+
+/** `Array.isArray` does not narrow readonly arrays out of a union, so narrow explicitly. */
+function isSubjectList<S extends SearchableSubject>(
+  data: NonNullable<SubjectSource<S>>
+): data is readonly (S | null | undefined)[] {
+  return Array.isArray(data);
 }
