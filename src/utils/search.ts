@@ -190,7 +190,6 @@ export function extractAllSubjects<S extends SearchableSubject>(
  *
  * e.g. ("data", "Programming and Data Structures") -> 2, ("data", "Database Systems") -> 0,
  *      ("data", "Metadata") -> -1
- *
  */
 export function wordMatchIndex(query: string, name: string): number {
   const q = splitWords(query).join(" ");
