@@ -1,5 +1,7 @@
 import { BookOpen, FileText, Download } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { csvParseRows } from "d3-dsv";
+import type { SemesterData, Subject } from "../types/semester";
 
 // Google Sheet published as CSV (File → Share → Publish to web → CSV).
 // Expected header row:
@@ -9,14 +11,30 @@ import { csvParseRows } from "d3-dsv";
 const SHEET_CSV_URL = import.meta.env.VITE_SHEET_CSV_URL;
 const FETCH_TIMEOUT_MS = 8000;
 
-const ICONS = { book: BookOpen, file: FileText, download: Download };
+// Partial: a cell may name an icon that is not in the map.
+const ICONS: Partial<Record<string, LucideIcon>> = { book: BookOpen, file: FileText, download: Download };
 
-function rowsToSemesterData(rows) {
+type Column =
+  | "semester"
+  | "subject_id"
+  | "subject_name"
+  | "subject_image"
+  | "resource_name"
+  | "resource_url"
+  | "icon";
+
+function rowsToSemesterData(rows: string[][]): SemesterData {
   const [header, ...body] = rows;
-  const col = Object.fromEntries(header.map((h, i) => [h.trim().toLowerCase(), i]));
-  const get = (r, key) => (r[col[key]] ?? "").trim();
+  const col: Partial<Record<string, number>> = Object.fromEntries(
+    header.map((h, i) => [h.trim().toLowerCase(), i])
+  );
+  // A column missing from the header reads as "" in every row.
+  const get = (r: string[], key: Column): string => {
+    const i = col[key];
+    return (i === undefined ? "" : r[i] ?? "").trim();
+  };
 
-  const data = {};
+  const data: SemesterData = {};
   for (const r of body) {
     const sem = get(r, "semester").replace(/^s/i, "");
     const subjectId = get(r, "subject_id");
@@ -25,7 +43,7 @@ function rowsToSemesterData(rows) {
     const semKey = `s${sem}`;
     data[semKey] ??= { name: `Semester ${sem}`, subjects: [] };
 
-    let subject = data[semKey].subjects.find((s) => s.id === subjectId);
+    let subject: Subject | undefined = data[semKey].subjects.find((s) => s.id === subjectId);
     if (!subject) {
       subject = {
         id: subjectId,
@@ -54,7 +72,7 @@ function rowsToSemesterData(rows) {
   );
 }
 
-export async function loadSemesterData() {
+export async function loadSemesterData(): Promise<SemesterData> {
   if (!SHEET_CSV_URL) throw new Error("VITE_SHEET_CSV_URL is not set");
 
   const controller = new AbortController();

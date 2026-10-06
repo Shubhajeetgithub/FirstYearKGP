@@ -5,16 +5,21 @@ const URL = "https://example.test/sheet.csv";
 const HEADER = "semester,subject_id,subject_name,subject_image,resource_name,resource_url,icon";
 
 // SHEET_CSV_URL is read once at module load, so each test imports a fresh copy.
-async function load(csv, { env = URL, response } = {}) {
+interface LoadOptions {
+  env?: string;
+  response?: Response;
+}
+
+async function load(csv: string, { env = URL, response }: LoadOptions = {}) {
   vi.stubEnv("VITE_SHEET_CSV_URL", env);
-  const fetchMock = vi.fn(async () => response ?? new Response(csv, { status: 200 }));
+  const fetchMock = vi.fn<typeof fetch>(async () => response ?? new Response(csv, { status: 200 }));
   vi.stubGlobal("fetch", fetchMock);
   vi.resetModules();
   const { loadSemesterData } = await import("./loadSemesterData");
   return { result: loadSemesterData(), fetchMock };
 }
 
-const csv = (...rows) => [HEADER, ...rows].join("\n");
+const csv = (...rows: string[]) => [HEADER, ...rows].join("\n");
 
 beforeEach(() => {
   vi.useRealTimers();
@@ -39,7 +44,7 @@ describe("loadSemesterData", () => {
       expect(fetchMock).toHaveBeenCalledTimes(1);
       const [url, init] = fetchMock.mock.calls[0];
       expect(url).toBe(URL);
-      expect(init.signal).toBeInstanceOf(AbortSignal);
+      expect(init?.signal).toBeInstanceOf(AbortSignal);
     });
 
     it("rejects with the HTTP status on a non-OK response", async () => {
@@ -70,13 +75,13 @@ describe("loadSemesterData", () => {
     it("aborts the request after 8 seconds", async () => {
       vi.useFakeTimers();
       vi.stubEnv("VITE_SHEET_CSV_URL", URL);
-      let signal;
+      let signal: AbortSignal | null | undefined;
       vi.stubGlobal(
         "fetch",
-        vi.fn((_url, init) => {
-          signal = init.signal;
-          return new Promise((_resolve, reject) => {
-            init.signal.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")));
+        vi.fn((_url: RequestInfo | URL, init?: RequestInit) => {
+          signal = init?.signal;
+          return new Promise<Response>((_resolve, reject) => {
+            init?.signal?.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")));
           });
         })
       );
@@ -85,9 +90,9 @@ describe("loadSemesterData", () => {
       const result = loadSemesterData();
       const assertion = expect(result).rejects.toThrow("aborted");
       await vi.advanceTimersByTimeAsync(7999);
-      expect(signal.aborted).toBe(false);
+      expect(signal?.aborted).toBe(false);
       await vi.advanceTimersByTimeAsync(1);
-      expect(signal.aborted).toBe(true);
+      expect(signal?.aborted).toBe(true);
       await assertion;
     });
 
@@ -96,7 +101,7 @@ describe("loadSemesterData", () => {
       const { result, fetchMock } = await load(csv("1,A,Alpha,,,,"));
       await result;
       await vi.advanceTimersByTimeAsync(10_000);
-      expect(fetchMock.mock.calls[0][1].signal.aborted).toBe(false);
+      expect(fetchMock.mock.calls[0][1]?.signal?.aborted).toBe(false);
     });
   });
 
