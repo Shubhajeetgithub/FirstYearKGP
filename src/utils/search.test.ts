@@ -856,3 +856,11 @@ describe("searchSubjects: first-word priority", () => {
     expect(Object.keys(top).sort()).toEqual(["_distance", "_matchedOn", "id", "name"]);
   });
 });
+
+// Documents current behaviour that looks unintended. Not fixed during the TypeScript migration.
+describe("known bugs in search.ts (documented, not fixed)", () => {
+  it("BUG: calculateSubjectDistance scores a numeric id 0 as if the id were empty", () => {
+    // `String(subject.id || "")` turns 0 into "", so an exact id query does not score 0.
+    expect(calculateSubjectDistance("0", { id: 0, name: "Zzzz" })).toEqual({ distance: 1, matchedOn: "id" });
+  });
+});
