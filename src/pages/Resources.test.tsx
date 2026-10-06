@@ -4,10 +4,18 @@ import { act, cleanup, fireEvent, render, screen, within } from "@testing-librar
 import { BookOpen, FileText } from "lucide-react";
 import Resources from "./Resources";
 import { loadSemesterData } from "../data/loadSemesterData";
+import { required } from "../test/required";
+import type { Resource, SemesterData, Subject } from "../types/semester";
 
 vi.mock("../data/loadSemesterData", () => ({ loadSemesterData: vi.fn() }));
 
-const subject = (semester, id, name, resources = [], image = "") => ({
+const subject = (
+  semester: string,
+  id: string,
+  name: string,
+  resources: Resource[] = [],
+  image = ""
+): Subject => ({
   id,
   name,
   image,
@@ -16,7 +24,7 @@ const subject = (semester, id, name, resources = [], image = "") => ({
   resources,
 });
 
-const DATA = {
+const DATA: SemesterData = {
   s1: {
     name: "Semester 1",
     subjects: [
@@ -50,20 +58,22 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-async function renderLoaded(data = DATA) {
+async function renderLoaded(data: SemesterData = DATA) {
   vi.mocked(loadSemesterData).mockResolvedValue(data);
   render(<Resources />);
   await screen.findByText("Academic Resources");
 }
 
-const search = (value) => fireEvent.change(screen.getByRole("textbox"), { target: { value } });
+const searchBox = () => screen.getByRole<HTMLInputElement>("textbox");
+const search = (value: string) => fireEvent.change(searchBox(), { target: { value } });
 const cardTitles = () => screen.queryAllByRole("heading", { level: 3 }).map((h) => h.textContent);
-const semesterButton = (n) => screen.getByText(`Semester ${n}`).closest("button");
+const semesterButton = (n: number) => required(screen.getByText(`Semester ${n}`).closest("button"));
+const cardFor = (name: string) => required(screen.getByText(name).closest("button"));
 
 describe("Resources", () => {
   describe("loading and errors", () => {
     it("shows a loader while the data loads", () => {
-      vi.mocked(loadSemesterData).mockReturnValue(new Promise(() => {}));
+      vi.mocked(loadSemesterData).mockReturnValue(new Promise<SemesterData>(() => {}));
       render(<Resources />);
       expect(screen.getByText("Loading Archives...")).toBeTruthy();
     });
@@ -83,7 +93,9 @@ describe("Resources", () => {
   describe("semester view", () => {
     it("lists loaded semesters, then disabled placeholders for missing 6-8", async () => {
       await renderLoaded();
-      const buttons = screen.getAllByRole("button").filter((b) => b.textContent.includes("Semester"));
+      const buttons = screen
+        .getAllByRole<HTMLButtonElement>("button")
+        .filter((b) => b.textContent?.includes("Semester"));
       expect(buttons.map((b) => [b.textContent, b.disabled])).toEqual([
         ["1Semester 1", false],
         ["2Semester 2", false],
@@ -111,13 +123,13 @@ describe("Resources", () => {
   describe("subject card", () => {
     it("shows id, name, resource count and image, and toggles resources", async () => {
       await renderLoaded();
-      const card = screen.getByText("Advanced Calculus").closest("button");
+      const card = cardFor("Advanced Calculus");
       expect(within(card).getByText("MA11001")).toBeTruthy();
       expect(within(card).getByText("2 resources")).toBeTruthy();
-      expect(card.querySelector("img").getAttribute("src")).toBe("https://img/calc.png");
+      expect(required(card.querySelector("img")).getAttribute("src")).toBe("https://img/calc.png");
       expect(card.getAttribute("aria-expanded")).toBe("false");
 
-      const link = screen.getByText("Calculus Notes").closest("a");
+      const link = required(screen.getByText("Calculus Notes").closest("a"));
       expect(link.getAttribute("href")).toBe("https://r/notes");
       expect(link.getAttribute("target")).toBe("_blank");
       expect(link.getAttribute("tabindex")).toBe("-1");
@@ -131,7 +143,7 @@ describe("Resources", () => {
 
     it("uses singular wording and a placeholder icon without an image", async () => {
       await renderLoaded();
-      const card = screen.getByText("Physics of Waves").closest("button");
+      const card = cardFor("Physics of Waves");
       expect(within(card).getByText("1 resource")).toBeTruthy();
       expect(card.querySelector("img")).toBeNull();
     });
@@ -157,7 +169,7 @@ describe("Resources", () => {
       expect(screen.getByText('"data"')).toBeTruthy();
       expect(cardTitles()[0]).toBe("Data Structures");
       expect(screen.getByText("#1")).toBeTruthy();
-      const top = screen.getByText("Data Structures").closest("button");
+      const top = cardFor("Data Structures");
       expect(within(top).getByText("Semester 2")).toBeTruthy();
       expect(screen.getByText(/subjects? found/).textContent).toMatch(/^\d+ subjects? found$/);
     });
@@ -186,19 +198,19 @@ describe("Resources", () => {
       await renderLoaded();
       search("data");
       fireEvent.click(screen.getByLabelText("Clear search"));
-      expect(screen.getByRole("textbox").value).toBe("");
+      expect(searchBox().value).toBe("");
       search("data");
       fireEvent.click(screen.getByText("Clear filter"));
-      expect(screen.getByRole("textbox").value).toBe("");
+      expect(searchBox().value).toBe("");
       expect(screen.queryByLabelText("Clear search")).toBeNull();
     });
 
     it("'View in semester' opens that semester and clears the search", async () => {
       await renderLoaded();
       search("reinforcement");
-      const card = screen.getByText("Reinforcement Learning").closest("button");
+      const card = cardFor("Reinforcement Learning");
       fireEvent.click(within(card).getByText("View in semester →"));
-      expect(screen.getByRole("textbox").value).toBe("");
+      expect(searchBox().value).toBe("");
       expect(cardTitles()).toEqual(["Reinforcement Learning"]);
       expect(card.isConnected).toBe(false);
     });
@@ -206,10 +218,10 @@ describe("Resources", () => {
     it("'View in semester' does not toggle the card", async () => {
       await renderLoaded();
       search("reinforcement");
-      const card = screen.getByText("Reinforcement Learning").closest("button");
+      const card = cardFor("Reinforcement Learning");
       fireEvent.click(within(card).getByText("View in semester →"));
       // The search card unmounts; the semester card starts collapsed.
-      const semesterCard = screen.getByText("Reinforcement Learning").closest("button");
+      const semesterCard = cardFor("Reinforcement Learning");
       expect(semesterCard.getAttribute("aria-expanded")).toBe("false");
     });
 
@@ -219,7 +231,7 @@ describe("Resources", () => {
       expect(screen.getByText("No matching subjects found")).toBeTruthy();
       expect(screen.getByText(/We couldn't find any subjects matching "anything"/)).toBeTruthy();
       fireEvent.click(screen.getByText("View all semesters"));
-      expect(screen.getByRole("textbox").value).toBe("");
+      expect(searchBox().value).toBe("");
     });
   });
 

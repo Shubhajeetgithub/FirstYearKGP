@@ -2,18 +2,20 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, Library, ExternalLink, Search, X, Sparkles, BookOpen } from 'lucide-react';
 import { loadSemesterData } from '../data/loadSemesterData';
 import { searchSubjects } from '../utils/search';
+import type { SemesterData, SemesterKey, Subject } from '../types/semester';
 
 function Resources() {
-  const [openSemester, setOpenSemester] = useState('s1'); // default to s1
-  const [semesterData, setSemesterData] = useState(null);
-  const [error, setError] = useState(null);
-  const [attempt, setAttempt] = useState(0);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [openSemester, setOpenSemester] = useState<SemesterKey>('s1'); // default to s1
+  const [semesterData, setSemesterData] = useState<SemesterData | null>(null);
+  // Whatever the load rejected with; only its truthiness is used.
+  const [error, setError] = useState<unknown>(null);
+  const [attempt, setAttempt] = useState<number>(0);
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
     loadSemesterData()
       .then(setSemesterData)
-      .catch((err) => {
+      .catch((err: unknown) => {
         console.error('Failed to load resources:', err);
         setError(err);
       });
@@ -74,7 +76,7 @@ function Resources() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
               placeholder="Search by subject name, ID (e.g. AI20203), or initials (e.g. RL, DAA)..."
               className="w-full bg-transparent text-white placeholder-slate-500 text-sm md:text-base outline-none focus:outline-none"
             />
@@ -220,8 +222,17 @@ function Resources() {
   );
 }
 
-function SubjectCard({ subject, showSemesterBadge = false, rank = null, onNavigateSemester = null }) {
-  const [isOpen, setIsOpen] = useState(false);
+interface SubjectCardProps {
+  subject: Subject;
+  /** Show the semester name and a "View in semester" link (search results). */
+  showSemesterBadge?: boolean;
+  /** 1-based position in the search results. */
+  rank?: number | null;
+  onNavigateSemester?: ((semester: SemesterKey) => void) | null;
+}
+
+function SubjectCard({ subject, showSemesterBadge = false, rank = null, onNavigateSemester = null }: SubjectCardProps) {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const count = subject.resources ? subject.resources.length : 0;
 
   return (
@@ -271,7 +282,7 @@ function SubjectCard({ subject, showSemesterBadge = false, rank = null, onNaviga
                </span>
                {showSemesterBadge && subject.semester && onNavigateSemester && (
                  <span
-                   onClick={(e) => {
+                   onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
                      e.stopPropagation();
                      onNavigateSemester(subject.semester);
                    }}
