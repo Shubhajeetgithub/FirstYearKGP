@@ -5,8 +5,8 @@ import { Link } from 'react-router-dom'
 const FEEDBACK_FORM_LINK = "https://forms.gle/bMiuhPwQ4ees6BDQ9";
 
 function Welcome() {
-  const [terminalText, setTerminalText] = useState('');
-  const [showCursor, setShowCursor] = useState(true);
+  const [terminalText, setTerminalText] = useState<string>('');
+  const [showCursor, setShowCursor] = useState<boolean>(true);
 
   useEffect(() => {
     const text = 'cat init_academic_resources.sh';

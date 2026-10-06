@@ -7,6 +7,21 @@ import {
   searchSubjects,
   wordMatchIndex,
 } from "./search";
+import type { SearchableSemesterMap, SearchableSubject } from "../types/search";
+
+/**
+ * Lets a test pass a value the type system rejects, to pin down how the search behaves for
+ * plain-JS callers and malformed data. Test-only.
+ */
+function untyped<T>(value: unknown): T {
+  return value as T;
+}
+
+/** Fails the test the same way the JS version did (a TypeError) if `value` is missing. */
+function defined<T>(value: T | undefined): T {
+  if (value === undefined) throw new TypeError("expected a value, got undefined");
+  return value;
+}
 
 const SUBJECTS = [
   { id: "MA11001", name: "Advanced Calculus" },
@@ -83,9 +98,9 @@ describe("levenshteinDistance", () => {
   });
 
   it("coerces non-string input to strings", () => {
-    expect(levenshteinDistance(123, "123")).toBe(0);
-    expect(levenshteinDistance(12, 13)).toBe(1);
-    expect(levenshteinDistance(null, "ab")).toBe(levenshteinDistance("null", "ab"));
+    expect(levenshteinDistance(untyped(123), "123")).toBe(0);
+    expect(levenshteinDistance(untyped(12), untyped(13))).toBe(1);
+    expect(levenshteinDistance(untyped(null), "ab")).toBe(levenshteinDistance("null", "ab"));
   });
 
   it("handles repeated characters and long strings", () => {
@@ -110,7 +125,7 @@ describe("getSubjectAcronyms", () => {
     expect(getSubjectAcronyms()).toEqual([]);
     expect(getSubjectAcronyms("")).toEqual([]);
     expect(getSubjectAcronyms("   ")).toEqual([]);
-    expect(getSubjectAcronyms(null)).toEqual([]);
+    expect(getSubjectAcronyms(untyped(null))).toEqual([]);
     expect(getSubjectAcronyms(" - _ / ")).toEqual([]);
   });
 
@@ -149,7 +164,7 @@ describe("getSubjectAcronyms", () => {
   });
 
   it("coerces non-string input", () => {
-    expect(getSubjectAcronyms(42)).toEqual(["4"]);
+    expect(getSubjectAcronyms(untyped(42))).toEqual(["4"]);
   });
 });
 
@@ -159,7 +174,7 @@ describe("calculateSubjectDistance", () => {
 
   describe("empty queries", () => {
     it.each([[""], ["   "], [undefined], [null]])("query %j yields Infinity", (q) => {
-      expect(calculateSubjectDistance(q, algo)).toEqual({ distance: Infinity, matchedOn: "name" });
+      expect(calculateSubjectDistance(untyped(q), algo)).toEqual({ distance: Infinity, matchedOn: "name" });
     });
   });
 
@@ -293,7 +308,7 @@ describe("calculateSubjectDistance", () => {
     });
 
     it("throws on a null subject (documents current behaviour)", () => {
-      expect(() => calculateSubjectDistance("abc", null)).toThrow();
+      expect(() => calculateSubjectDistance("abc", untyped(null))).toThrow();
     });
   });
 
@@ -356,13 +371,13 @@ describe("extractAllSubjects", () => {
   });
 
   it("skips entries without a subjects array", () => {
-    const out = extractAllSubjects({
+    const out = extractAllSubjects(untyped<SearchableSemesterMap<SearchableSubject>>({
       s1: null,
       s2: {},
       s3: { subjects: "nope" },
       s4: { subjects: { id: "x" } },
       s5: { subjects: [{ id: "OK" }] },
-    });
+    }));
     expect(out.map((s) => s.id)).toEqual(["OK"]);
   });
 
@@ -380,7 +395,7 @@ describe("extractAllSubjects", () => {
 describe("searchSubjects", () => {
   describe("input handling", () => {
     it.each([[""], ["   "], [undefined], [null]])("returns [] for empty query %j", (q) => {
-      expect(searchSubjects(q, SUBJECTS)).toEqual([]);
+      expect(searchSubjects(untyped(q), SUBJECTS)).toEqual([]);
     });
 
     it("returns [] for empty / missing source", () => {
@@ -506,7 +521,7 @@ describe("searchSubjects", () => {
       ];
       const res = searchSubjects("copy", subjects, 10);
       expect(res.filter((r) => r.id === "X1")).toHaveLength(1);
-      expect(res.find((r) => r.id === "X1").name).toBe("First Copy");
+      expect(defined(res.find((r) => r.id === "X1")).name).toBe("First Copy");
     });
 
     it("drops subjects that have no id (documents current behaviour)", () => {
@@ -534,7 +549,7 @@ describe("searchSubjects", () => {
       expect(withAcr._distance).toBe(0);
 
       const withoutAcr = searchSubjects("rl", SUBJECTS, 5, { considerAcronyms: false });
-      const rlResult = withoutAcr.find((r) => r.id === "CS31003");
+      const rlResult = defined(withoutAcr.find((r) => r.id === "CS31003"));
       expect(rlResult._matchedOn).not.toBe("acronym");
       expect(rlResult._distance).toBeGreaterThan(0);
     });
@@ -757,7 +772,7 @@ describe("searchSubjects: flexible result count (minResults)", () => {
     { id: "EE10002", name: "Basic Electronics" },
     { id: "CS20001", name: "Reinforcement Learning" },
   ];
-  const flexible = (q, limit = 12) => searchSubjects(q, CATALOGUE, limit, { minResults: 3 });
+  const flexible = (q: string, limit = 12) => searchSubjects(q, CATALOGUE, limit, { minResults: 3 });
 
   it("returns every subject with a word starting with the query, beyond minResults", () => {
     expect(flexible("data").map((r) => r.name)).toEqual([
@@ -809,7 +824,7 @@ describe("searchSubjects: flexible result count (minResults)", () => {
   it("defaults minResults to limit (a fixed number of results)", () => {
     expect(searchSubjects("data", CATALOGUE, 3)).toHaveLength(3);
     expect(searchSubjects("qqqqqqqq", CATALOGUE, 3)).toHaveLength(3);
-    expect(searchSubjects("data", CATALOGUE, 3, { minResults: "nope" })).toHaveLength(3);
+    expect(searchSubjects("data", CATALOGUE, 3, { minResults: untyped("nope") })).toHaveLength(3);
   });
 
   it("returns the same top results as a fixed limit would", () => {
@@ -839,5 +854,13 @@ describe("searchSubjects: first-word priority", () => {
   it("does not add ranking metadata beyond _distance and _matchedOn", () => {
     const [top] = searchSubjects("data", [{ id: "1", name: "Data Science" }]);
     expect(Object.keys(top).sort()).toEqual(["_distance", "_matchedOn", "id", "name"]);
+  });
+});
+
+// Documents current behaviour that looks unintended. Not fixed during the TypeScript migration.
+describe("known bugs in search.ts (documented, not fixed)", () => {
+  it("BUG: calculateSubjectDistance scores a numeric id 0 as if the id were empty", () => {
+    // `String(subject.id || "")` turns 0 into "", so an exact id query does not score 0.
+    expect(calculateSubjectDistance("0", { id: 0, name: "Zzzz" })).toEqual({ distance: 1, matchedOn: "id" });
   });
 });

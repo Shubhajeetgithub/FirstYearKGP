@@ -1,8 +1,13 @@
 import { useEffect } from 'react';
+import type { ReactNode } from 'react';
 
-function TouchEffect({ children }) {
+interface TouchEffectProps {
+  children?: ReactNode;
+}
+
+function TouchEffect({ children }: TouchEffectProps) {
   useEffect(() => {
-    const handleTouchMove = (e) => {
+    const handleTouchMove = (e: TouchEvent) => {
       const glow = document.createElement('div');
       glow.style.position = 'absolute';
       glow.style.width = '150px';
@@ -12,7 +17,7 @@ function TouchEffect({ children }) {
       glow.style.left = `${e.touches[0].clientX + window.scrollX - 75}px`;
       glow.style.top = `${e.touches[0].clientY + window.scrollY - 75}px`;
       glow.style.pointerEvents = 'none';
-      glow.style.zIndex = 9999;
+      glow.style.zIndex = '9999';
       glow.style.transition = 'opacity 0.6s, transform 0.6s';
       glow.style.opacity = '1';
       glow.style.transform = 'scale(1)';

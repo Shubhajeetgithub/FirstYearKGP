@@ -1,9 +1,14 @@
 import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import MouseGlow from './MouseGlow';
 import TouchEffect from './TouchEffect';
 
-function BackgroundFX({ children }) {
-  const [isTouch, setIsTouch] = useState(false);
+interface BackgroundFXProps {
+  children?: ReactNode;
+}
+
+function BackgroundFX({ children }: BackgroundFXProps) {
+  const [isTouch, setIsTouch] = useState<boolean>(false);
 
   useEffect(() => {
     // Detect touch devices

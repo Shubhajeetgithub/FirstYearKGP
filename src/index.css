@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Tests are not UI; keep their identifiers (e.g. `container`) out of the generated CSS. */
+@source not "./**/*.test.{ts,tsx}";
 @theme {
   --animate-fade-up: fade-up 0.5s ease-out;
 
