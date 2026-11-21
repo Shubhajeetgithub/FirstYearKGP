@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "images": "node scripts/generate-images.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
@@ -22,6 +23,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
+    "@fontsource/inter": "^5.3.0",
+    "@resvg/resvg-js": "^2.6.2",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",
     "@types/d3-dsv": "^3.0.7",
@@ -33,6 +36,7 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
     "jsdom": "^30.1.2",
+    "satori": "^0.63.2",
     "typescript": "~5.9",
     "typescript-eslint": "^8.71.1",
     "vite": "^7.0.4",
