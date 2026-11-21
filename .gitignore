@@ -29,5 +29,5 @@ dist-ssr
 .astro
 .vercel
 
-# Copied from node_modules by scripts/copy-katex.mjs
+# Copied from node_modules by scripts/copy-vendor.mjs
 public/vendor/
