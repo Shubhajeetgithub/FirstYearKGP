@@ -1,0 +1,68 @@
+---
+import { GISCUS } from "../config/site";
+
+// Giscus stays off until the repository and category ids are filled in (see src/config/site.ts).
+const enabled = Boolean(GISCUS.repoId && GISCUS.categoryId);
+
+const attributes = {
+  "data-repo": GISCUS.repo,
+  "data-repo-id": GISCUS.repoId,
+  "data-category": GISCUS.category,
+  "data-category-id": GISCUS.categoryId,
+  "data-mapping": "pathname",
+  "data-strict": "1",
+  "data-reactions-enabled": "1",
+  "data-emit-metadata": "0",
+  "data-input-position": "top",
+  "data-theme": "transparent_dark",
+  "data-lang": "en",
+  "data-loading": "lazy",
+};
+---
+
+{
+  enabled ? (
+    <section id="comments" aria-labelledby="comments-heading" class="border-t border-white/10 pt-8" data-pagefind-ignore>
+      <h2 id="comments-heading" class="text-xl font-bold text-white mb-1">Comments &amp; reactions</h2>
+      <p class="text-sm text-slate-400 mb-6">Sign in with GitHub to react or comment. Discussions live in the repository's GitHub Discussions.</p>
+      <div class="giscus min-h-40" data-giscus-attributes={JSON.stringify(attributes)} />
+    </section>
+  ) : (
+    import.meta.env.DEV && (
+      <p class="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
+        Comments are disabled: fill in <code>GISCUS.repoId</code> and <code>GISCUS.categoryId</code> in <code>src/config/site.ts</code>.
+      </p>
+    )
+  )
+}
+
+<script>
+  // Load giscus only when the comments come close to the viewport, so posts stay light.
+  function loadGiscus(container: HTMLElement) {
+    const attributes = JSON.parse(container.dataset.giscusAttributes ?? "{}") as Record<string, string>;
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.async = true;
+    script.crossOrigin = "anonymous";
+    for (const [name, value] of Object.entries(attributes)) script.setAttribute(name, value);
+    container.after(script);
+  }
+
+  const container = document.querySelector<HTMLElement>(".giscus[data-giscus-attributes]");
+  if (container) {
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            observer.disconnect();
+            loadGiscus(container);
+          }
+        },
+        { rootMargin: "600px 0px" }
+      );
+      observer.observe(container);
+    } else {
+      loadGiscus(container);
+    }
+  }
+</script>
