@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { prefersReducedMotion } from '../utils/motion';
 import type { ReactNode } from 'react';
 
 interface TouchEffectProps {
@@ -7,7 +8,9 @@ interface TouchEffectProps {
 
 function TouchEffect({ children }: TouchEffectProps) {
   useEffect(() => {
-    const handleTouchMove = (e: TouchEvent) => {
+    if (prefersReducedMotion()) return;
+
+    const handleTouchStart = (e: TouchEvent) => {
       const glow = document.createElement('div');
       glow.style.position = 'absolute';
       glow.style.width = '150px';
@@ -33,10 +36,10 @@ function TouchEffect({ children }: TouchEffectProps) {
       }, 600);
     };
 
-    window.addEventListener('touchstart', handleTouchMove);
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
 
     return () => {
-      window.removeEventListener('touchstart', handleTouchMove);
+      window.removeEventListener('touchstart', handleTouchStart);
     };
   }, []);
 

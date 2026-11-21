@@ -13,7 +13,6 @@ function BackgroundFX({ children }: BackgroundFXProps) {
   useEffect(() => {
     // Detect touch devices
     const hasTouch = window.matchMedia('(pointer: coarse)').matches;
-    console.log(`hasTouch: ${hasTouch}`);
     setIsTouch(hasTouch);
   }, []);
 

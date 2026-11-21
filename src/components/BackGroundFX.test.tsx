@@ -18,7 +18,6 @@ const mouseGlowOverlay = (container: HTMLElement) => container.querySelector(".p
 describe("BackgroundFX", () => {
   it("uses the mouse glow on fine pointers", () => {
     stubPointer(false);
-    vi.spyOn(console, "log").mockImplementation(() => {});
     const { container } = render(<BackgroundFX><p>child</p></BackgroundFX>);
     expect(screen.getByText("child")).toBeTruthy();
     expect(mouseGlowOverlay(container)).not.toBeNull();
@@ -26,16 +25,15 @@ describe("BackgroundFX", () => {
 
   it("switches to the touch effect on coarse pointers", () => {
     stubPointer(true);
-    vi.spyOn(console, "log").mockImplementation(() => {});
     const { container } = render(<BackgroundFX><p>child</p></BackgroundFX>);
     expect(screen.getByText("child")).toBeTruthy();
     expect(mouseGlowOverlay(container)).toBeNull();
   });
 
-  it("logs the detected pointer type", () => {
+  it("does not log to the console", () => {
     stubPointer(true);
-    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    const log = vi.spyOn(console, "log");
     render(<BackgroundFX />);
-    expect(log).toHaveBeenCalledWith("hasTouch: true");
+    expect(log).not.toHaveBeenCalled();
   });
 });
