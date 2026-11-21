@@ -25,3 +25,9 @@ dist-ssr
 
 # env file
 .env
+# Astro
+.astro
+.vercel
+
+# Copied from node_modules by scripts/copy-katex.mjs
+public/vendor/

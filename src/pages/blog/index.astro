@@ -1,0 +1,28 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import BlogHeader from "../../components/BlogHeader.astro";
+import BlogList from "../../components/BlogList.astro";
+import { POSTS_PER_PAGE, getPosts } from "../../lib/blog";
+import { tagCounts } from "../../lib/posts";
+import { SITE } from "../../config/site";
+
+// Page 1 of the paginated list; pages 2+ live at /blog/page/N.
+const posts = await getPosts();
+const lastPage = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
+---
+
+<BaseLayout
+  title={`Blog — ${SITE.name}, IIT KGP`}
+  description="Notes, explainers and exam tips written by students of the AI Batch 2024 at IIT Kharagpur."
+>
+  <BlogHeader title="Blog" subtitle="Notes, explainers and exam tips, written by students for students.">
+    <a href="/blog/contribute" class="text-sm text-indigo-300 hover:text-indigo-200 transition-colors">Write for us →</a>
+  </BlogHeader>
+  <BlogList
+    posts={posts.slice(0, POSTS_PER_PAGE)}
+    tags={tagCounts(posts)}
+    currentPage={1}
+    lastPage={lastPage}
+    nextUrl={lastPage > 1 ? "/blog/page/2" : undefined}
+  />
+</BaseLayout>

@@ -1,0 +1,101 @@
+# yaml-language-server: $schema=https://unpkg.com/@sveltia/cms/schema/sveltia-cms.json
+# Sveltia CMS configuration: https://sveltiacms.app/en/docs
+# Trusted authors are GitHub users with write access to the repository.
+
+backend:
+  name: github
+  repo: Shubhajeetgithub/FirstYearKGP
+  branch: main
+  # 🧑 HUMAN STEP (Phase 6.2): deploy sveltia-cms-auth to Cloudflare Workers, then uncomment and
+  # set this to the Worker URL. Until then, use "Sign In with Token" (a GitHub personal access token).
+  # base_url: https://sveltia-cms-auth.<SUBDOMAIN>.workers.dev
+  commit_messages:
+    create: "content: create {{collection}} “{{slug}}”"
+    update: "content: update {{collection}} “{{slug}}”"
+    delete: "content: delete {{collection}} “{{slug}}”"
+    uploadMedia: "content: upload “{{path}}”"
+    deleteMedia: "content: delete “{{path}}”"
+
+# Leave blank optional fields out of the file instead of writing "" (the site's schema rejects
+# an empty cover image, for example).
+output:
+  omit_empty_optional_fields: true
+
+site_url: https://ai2024-chi.vercel.app
+display_url: https://ai2024-chi.vercel.app
+logo:
+  src: /apple-touch-icon.png
+
+# Site-wide uploads (not used by posts, whose images live next to the post).
+media_folder: /public/images/blog
+public_folder: /images/blog
+
+collections:
+  - name: blog
+    label: Blog posts
+    label_singular: Blog post
+    description: Posts appear on the site a couple of minutes after you save with Draft turned off.
+    folder: src/content/blog
+    # One folder per post, images stored next to index.md and referenced by file name, so
+    # Astro can optimise them (src/content/blog/<slug>/index.md, src/content/blog/<slug>/cover.webp).
+    path: "{{slug}}/index"
+    media_folder: ""
+    public_folder: ""
+    create: true
+    slug: "{{slug}}"
+    extension: md
+    format: frontmatter
+    identifier_field: title
+    summary: "{{title}} — {{pubDate}}{{draft | ternary(' (draft)', '')}}"
+    sortable_fields: [pubDate, title]
+    preview_path: blog/{{slug}}
+    fields:
+      - { name: title, label: Title, widget: string }
+      - name: description
+        label: Description
+        widget: text
+        hint: One or two sentences, at most 160 characters. Shown in search results and link previews.
+        maxlength: 160
+      - { name: pubDate, label: Published, widget: datetime, type: date }
+      - { name: updatedDate, label: Updated, widget: datetime, type: date, required: false }
+      - name: author
+        label: Author
+        widget: relation
+        collection: authors
+        value_field: "{{slug}}" # the author's file name, which is how reference("authors") resolves
+        search_fields: [name, github]
+        display_fields: [name]
+        hint: Not listed? Add yourself under Authors first.
+      - name: tags
+        label: Tags
+        widget: list
+        required: false
+        default: []
+        hint: Lowercase topics, e.g. signals, fourier.
+      - { name: subject, label: Course code, widget: string, required: false, hint: "e.g. AI20203" }
+      - { name: cover, label: Cover image, widget: image, required: false, hint: "Under 300 KB; WebP or PNG." }
+      - { name: coverAlt, label: Cover description (alt text), widget: string, required: false }
+      - { name: math, label: Uses maths (KaTeX), widget: boolean, default: false, hint: "Write $inline$ and $$display$$ LaTeX." }
+      - { name: draft, label: Draft, widget: boolean, default: true, hint: "Drafts are not published." }
+      - { name: body, label: Body, widget: markdown }
+
+  - name: authors
+    label: Authors
+    label_singular: Author
+    description: Add yourself here before writing your first post.
+    folder: src/content/authors
+    create: true
+    extension: json
+    format: json
+    identifier_field: name
+    slug: "{{name}}"
+    summary: "{{name}} (@{{github}})"
+    fields:
+      - { name: name, label: Name, widget: string }
+      - { name: github, label: GitHub username, widget: string, hint: "Without @, e.g. octocat" }
+      - { name: avatar, label: Photo URL, widget: string, required: false, hint: "Leave empty to use your GitHub avatar." }
+      - { name: role, label: Role, widget: string, required: false }
+      - { name: bio, label: Bio, widget: text, required: false }
+      - { name: email, label: Email (shown on the home page), widget: string, required: false, hint: "e.g. name [at] kgpian.iitkgp.ac.in" }
+      - { name: core, label: Core contributor (home page credits), widget: boolean, default: false }
+      - { name: order, label: Order in credits, widget: number, value_type: int, default: 100, required: false }

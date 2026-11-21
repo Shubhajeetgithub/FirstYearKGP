@@ -1,0 +1,43 @@
+---
+import { Search } from "lucide-react";
+import { NAV_ITEMS } from "../config/site";
+import { cleanPath } from "../lib/url";
+
+const path = cleanPath(Astro.url.pathname);
+---
+
+<nav aria-label="Main" class="fixed top-6 left-1/2 -translate-x-1/2 z-50">
+  <div class="flex items-center gap-1 p-1.5 rounded-full border border-white/10 bg-black/40 backdrop-blur-md shadow-2xl">
+    {
+      NAV_ITEMS.map((item) => {
+        const active = item.match(path);
+        return (
+          <a
+            href={item.href}
+            aria-current={active ? "page" : undefined}
+            class:list={[
+              "relative px-4 sm:px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ease-out",
+              active
+                ? "text-white bg-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]"
+                : "text-slate-400 hover:text-slate-200 hover:bg-white/5",
+            ]}
+          >
+            {item.label}
+          </a>
+        );
+      })
+    }
+    <a
+      href="/search"
+      aria-label="Search (press /)"
+      title="Search (/)"
+      aria-current={path === "/search" ? "page" : undefined}
+      class:list={[
+        "relative p-2 rounded-full transition-all duration-300 ease-out",
+        path === "/search" ? "text-white bg-white/10" : "text-slate-400 hover:text-slate-200 hover:bg-white/5",
+      ]}
+    >
+      <Search className="w-4 h-4" aria-hidden="true" />
+    </a>
+  </div>
+</nav>

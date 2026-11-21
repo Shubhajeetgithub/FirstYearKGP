@@ -1,0 +1,6 @@
+semester,subject_id,subject_name,subject_image,resource_name,resource_url,icon
+1,MA11003,Advanced Calculus,,Lecture notes,https://example.com/calculus-notes,book
+1,PH11003,Physics of Waves,,Problem sets,https://example.com/waves-problems,file
+2,CS10003,Programming and Data Structures,,Slides,https://example.com/pds-slides,download
+3,AI20203,Design and Analysis of Algorithms,,Class notes,https://example.com/daa-notes,book
+3,AI21203,Linear Algebra for AI,,,,

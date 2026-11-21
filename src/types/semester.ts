@@ -1,4 +1,6 @@
-import type { LucideIcon } from "lucide-react";
+/** Icon names a sheet row may use. Serialisable, so Astro can pass resources to islands as props. */
+export const RESOURCE_ICONS = ["book", "file", "download"] as const;
+export type ResourceIcon = (typeof RESOURCE_ICONS)[number];
 
 /** Key of a semester in {@link SemesterData}, e.g. `"s1"`. */
 export type SemesterKey = string;
@@ -7,7 +9,7 @@ export interface Resource {
   name: string;
   /** Link to the resource; `"#"` when the sheet leaves it blank. */
   url: string;
-  icon: LucideIcon;
+  icon: ResourceIcon;
 }
 
 export interface Subject {

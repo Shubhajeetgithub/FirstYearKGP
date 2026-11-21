@@ -1,0 +1,33 @@
+---
+import type { GetStaticPaths, Page } from "astro";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import BlogHeader from "../../../components/BlogHeader.astro";
+import BlogList from "../../../components/BlogList.astro";
+import { POSTS_PER_PAGE, getPosts } from "../../../lib/blog";
+import type { Post } from "../../../lib/blog";
+import { tagCounts } from "../../../lib/posts";
+import { SITE } from "../../../config/site";
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = await getPosts();
+  const tags = tagCounts(posts);
+  // Page 1 is /blog itself, so skip the /blog/page/1 duplicate.
+  return paginate(posts, { pageSize: POSTS_PER_PAGE, props: { tags } }).filter((path) => path.params.page !== "1");
+}) satisfies GetStaticPaths;
+
+interface Props {
+  page: Page<Post>;
+  tags: [string, number][];
+}
+
+const { page, tags } = Astro.props;
+const prevUrl = page.currentPage === 2 ? "/blog" : page.url.prev;
+---
+
+<BaseLayout
+  title={`Blog, page ${page.currentPage} — ${SITE.name}, IIT KGP`}
+  description={`Older posts from the AI Batch 2024 student blog, page ${page.currentPage} of ${page.lastPage}.`}
+>
+  <BlogHeader title="Blog" subtitle={`Page ${page.currentPage} of ${page.lastPage}`} />
+  <BlogList posts={page.data} tags={tags} currentPage={page.currentPage} lastPage={page.lastPage} prevUrl={prevUrl} nextUrl={page.url.next} />
+</BaseLayout>

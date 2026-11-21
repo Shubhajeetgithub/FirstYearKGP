@@ -46,6 +46,21 @@ describe("TouchEffect", () => {
     expect(glows()).toHaveLength(0);
   });
 
+  it("registers a passive touchstart listener", () => {
+    const add = vi.spyOn(window, "addEventListener");
+    render(<TouchEffect />);
+    expect(add).toHaveBeenCalledWith("touchstart", expect.any(Function), { passive: true });
+  });
+
+  it("adds no glow under prefers-reduced-motion", () => {
+    vi.stubGlobal("matchMedia", vi.fn((query: string) => ({ matches: query.includes("reduce") })));
+    render(<TouchEffect><p>child</p></TouchEffect>);
+    touch(50, 50);
+    expect(glows()).toHaveLength(0);
+    expect(screen.getByText("child")).toBeTruthy();
+    vi.unstubAllGlobals();
+  });
+
   it("stops listening after unmount", () => {
     const { unmount } = render(<TouchEffect />);
     unmount();

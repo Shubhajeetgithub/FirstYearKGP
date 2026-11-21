@@ -1,0 +1,14 @@
+---
+import type { GetStaticPaths } from "astro";
+import ResourcesPage from "../../components/ResourcesPage.astro";
+import { getBuildSheet } from "../../lib/buildSheet";
+
+export const getStaticPaths = (async () => {
+  const { data } = await getBuildSheet();
+  return Object.keys(data).map((semester) => ({ params: { semester } }));
+}) satisfies GetStaticPaths;
+
+const { semester } = Astro.params;
+---
+
+<ResourcesPage semester={semester} />

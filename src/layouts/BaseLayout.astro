@@ -1,0 +1,76 @@
+---
+import "../styles/global.css";
+import SEO from "../components/SEO.astro";
+import type { Props as SEOProps } from "../components/SEO.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import BackgroundFX from "../components/BackgroundFX";
+import Analytics from "@vercel/analytics/astro";
+import { SITE } from "../config/site";
+
+export type Props = SEOProps;
+
+const props = Astro.props;
+// Vercel Web Analytics: opt in with PUBLIC_VERCEL_ANALYTICS=true once it is enabled in the dashboard
+// (otherwise its script 404s).
+const analytics = import.meta.env.PUBLIC_VERCEL_ANALYTICS === "true";
+---
+
+<!doctype html>
+<html lang={SITE.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content={SITE.themeColor} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="alternate" type="application/rss+xml" title={`${SITE.name} blog`} href={new URL("/rss.xml", Astro.site)} />
+    <SEO {...props} />
+    <slot name="head" />
+    {analytics && <Analytics />}
+  </head>
+  <body class="bg-[#07070a] text-slate-200 font-sans antialiased selection:bg-indigo-500/30">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-full focus:bg-indigo-600 focus:text-white focus:outline-none focus:ring-2 focus:ring-white"
+    >
+      Skip to content
+    </a>
+
+    <!-- Abstract Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+      <div class="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-indigo-900/10 blur-[120px] rounded-full mix-blend-screen"></div>
+      <div class="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-blue-900/10 blur-[120px] rounded-full mix-blend-screen"></div>
+    </div>
+
+    <!-- Pointer effect: an overlay sibling of the content, hydrated when the browser is idle. -->
+    <BackgroundFX client:idle />
+
+    <div class="relative z-10 flex flex-col items-center min-h-screen">
+      <Nav />
+      <main id="main" tabindex="-1" class="w-full max-w-7xl px-4 pt-32 pb-16 flex-grow flex flex-col outline-none">
+        <slot />
+      </main>
+      <Footer />
+    </div>
+
+    <script>
+      // "/" focuses the page's own search box (resources, search page), or opens /search.
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey || e.defaultPrevented) return;
+        const target = e.target as HTMLElement | null;
+        if (target?.closest("input, textarea, select, [contenteditable=''], [contenteditable='true']")) return;
+        e.preventDefault();
+        const box = document.querySelector<HTMLInputElement>("[data-search-shortcut]");
+        if (box) {
+          box.focus();
+          box.select();
+        } else {
+          window.location.href = "/search";
+        }
+      });
+    </script>
+  </body>
+</html>

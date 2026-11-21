@@ -1,0 +1,34 @@
+---
+import type { GetStaticPaths } from "astro";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import BlogHeader from "../../../components/BlogHeader.astro";
+import BlogList from "../../../components/BlogList.astro";
+import { getPosts } from "../../../lib/blog";
+import type { Post } from "../../../lib/blog";
+import { tagCounts } from "../../../lib/posts";
+import { SITE } from "../../../config/site";
+
+export const getStaticPaths = (async () => {
+  const posts = await getPosts();
+  const tags = tagCounts(posts);
+  return tags.map(([tag]) => ({
+    params: { tag },
+    props: { tags, posts: posts.filter((p) => p.data.tags.includes(tag)) },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  posts: Post[];
+  tags: [string, number][];
+}
+
+const { tag } = Astro.params;
+const { posts, tags } = Astro.props;
+---
+
+<BaseLayout title={`#${tag} — ${SITE.name} Blog`} description={`Posts tagged #${tag} on the AI Batch 2024 student blog.`}>
+  <BlogHeader title={`#${tag}`} subtitle={`${posts.length} ${posts.length === 1 ? "post" : "posts"}`}>
+    <a href="/blog/tags" class="text-sm text-indigo-300 hover:text-indigo-200 transition-colors">All tags</a>
+  </BlogHeader>
+  <BlogList posts={posts} tags={tags} activeTag={tag} />
+</BaseLayout>

@@ -1,0 +1,23 @@
+---
+import { SITE } from "../config/site";
+---
+
+<footer class="w-full max-w-7xl px-4 pb-10 pt-6 mt-auto">
+  <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10 pt-6 text-sm text-slate-400">
+    <p>© {new Date().getFullYear()} {SITE.name} · IIT Kharagpur. Student-maintained.</p>
+    <ul class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+      <li>
+        <a href={SITE.feedbackFormUrl} target="_blank" rel="noopener noreferrer" class="hover:text-indigo-300 transition-colors">
+          Feedback
+        </a>
+      </li>
+      <li>
+        <a href={SITE.repoUrl} target="_blank" rel="noopener noreferrer" class="hover:text-indigo-300 transition-colors">
+          GitHub
+        </a>
+      </li>
+      <li><a href="/blog/contribute" class="hover:text-indigo-300 transition-colors">Write for us</a></li>
+      <li><a href="/rss.xml" class="hover:text-indigo-300 transition-colors">RSS</a></li>
+    </ul>
+  </div>
+</footer>
