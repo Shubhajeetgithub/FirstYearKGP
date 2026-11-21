@@ -7,7 +7,7 @@
     "predev": "node scripts/copy-katex.mjs",
     "dev": "astro dev",
     "prebuild": "node scripts/copy-katex.mjs",
-    "build": "astro build",
+    "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "lint": "eslint .",
     "test": "vitest run",

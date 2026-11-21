@@ -104,7 +104,7 @@ export default function ResourcesExplorer({ data, initialSemester, builtAt, shee
   return (
     <div className="w-full">
       {/* Search Bar */}
-      <div className="max-w-2xl mx-auto mb-10 w-full px-2" role="search">
+      <div className="max-w-2xl mx-auto mb-10 w-full px-2" role="search" data-pagefind-ignore="all">
         <div className="relative group">
           <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500/30 to-purple-500/30 rounded-2xl blur opacity-30 group-hover:opacity-70 group-focus-within:opacity-100 transition duration-300"></div>
           <div className="relative flex items-center bg-[#0d0d14]/90 backdrop-blur-xl border border-white/10 group-focus-within:border-indigo-500/50 rounded-2xl px-4 py-3 shadow-xl transition-all">
@@ -116,6 +116,7 @@ export default function ResourcesExplorer({ data, initialSemester, builtAt, shee
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateQuery(e.target.value)}
               placeholder="Search by subject name, ID (e.g. AI20203), or initials (e.g. RL, DAA)..."
               aria-label="Search subjects"
+              data-search-shortcut
               className="w-full bg-transparent text-white placeholder-slate-400 text-sm md:text-base outline-none focus:outline-none [&::-webkit-search-cancel-button]:hidden"
             />
             {searchQuery && (
@@ -203,6 +204,7 @@ export default function ResourcesExplorer({ data, initialSemester, builtAt, shee
           <nav
             ref={semesterNav}
             aria-label="Semesters"
+            data-pagefind-ignore="all"
             className="w-full lg:w-64 flex-shrink-0 flex flex-row lg:flex-col gap-2 overflow-x-auto pb-4 lg:pb-0 hide-scrollbar lg:sticky lg:top-32 z-20"
           >
             {Object.keys(semesterData).map((semKey) => {

@@ -73,9 +73,9 @@ const jsonLd = {
   <article class="w-full max-w-6xl mx-auto" data-pagefind-body data-pagefind-filter="type:blog">
     <header class="max-w-3xl mx-auto text-center mb-10">
       <a href="/blog" class="text-sm text-indigo-300 hover:text-indigo-200 transition-colors" data-pagefind-ignore>← All posts</a>
-      <div class="mt-6 flex flex-wrap items-center justify-center gap-2 text-xs">
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-2 text-xs" data-pagefind-ignore>
         {draft && <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold">Draft (not published)</span>}
-        {subject && <span class="font-mono font-semibold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30" data-pagefind-filter="subject">{subject}</span>}
+        {subject && <span class="font-mono font-semibold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">{subject}</span>}
         {tags.map((tag) => (
           <a href={tagUrl(tag)} class="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:border-indigo-500/40 transition-colors">#{tag}</a>
         ))}
@@ -96,7 +96,7 @@ const jsonLd = {
             ))}
           </span>
         </span>
-        <time datetime={pubDate.toISOString()} data-pagefind-meta="date">{formatDate(pubDate)}</time>
+        <time datetime={pubDate.toISOString()} data-pagefind-meta={`date:${pubDate.toISOString().slice(0, 10)}`}>{formatDate(pubDate)}</time>
         {minutesRead && <span>{minutesRead} min read</span>}
       </div>
     </header>

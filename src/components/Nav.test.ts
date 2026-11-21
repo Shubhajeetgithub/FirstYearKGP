@@ -5,7 +5,7 @@ import { parseHtml, renderAstro } from "../test/astro";
 async function navLinks(path: string) {
   const doc = parseHtml(await renderAstro(Nav, { path }));
   return Array.from(doc.querySelectorAll("a")).map((a) => ({
-    label: a.textContent?.trim(),
+    label: a.textContent?.trim() || a.getAttribute("aria-label"),
     href: a.getAttribute("href"),
     current: a.getAttribute("aria-current"),
     className: a.getAttribute("class") ?? "",
@@ -18,6 +18,7 @@ describe("Nav", () => {
       ["Home", "/"],
       ["Resources", "/resources"],
       ["Blog", "/blog"],
+      ["Search (press /)", "/search"],
     ]);
   });
 
@@ -29,6 +30,7 @@ describe("Nav", () => {
     ["/blog", "Blog"],
     ["/blog/some-post", "Blog"],
     ["/authors/someone", "Blog"],
+    ["/search", "Search (press /)"],
   ])("at %s marks %s as the current page", async (path, active) => {
     const links = await navLinks(path);
     for (const link of links) {

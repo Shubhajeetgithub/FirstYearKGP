@@ -50,5 +50,22 @@ const props = Astro.props;
       </main>
       <Footer />
     </div>
+
+    <script>
+      // "/" focuses the page's own search box (resources, search page), or opens /search.
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey || e.defaultPrevented) return;
+        const target = e.target as HTMLElement | null;
+        if (target?.closest("input, textarea, select, [contenteditable=''], [contenteditable='true']")) return;
+        e.preventDefault();
+        const box = document.querySelector<HTMLInputElement>("[data-search-shortcut]");
+        if (box) {
+          box.focus();
+          box.select();
+        } else {
+          window.location.href = "/search";
+        }
+      });
+    </script>
   </body>
 </html>

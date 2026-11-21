@@ -32,7 +32,13 @@ const lastUpdated = new Intl.DateTimeFormat("en-IN", {
 ---
 
 <BaseLayout title={title} description={description}>
-  <div class="w-full" data-resource-page={semester ?? ""}>
+  <!-- Only the semester pages are indexed by Pagefind; /resources would duplicate semester 1. -->
+  <div
+    class="w-full"
+    data-pagefind-body={semester && current ? "" : undefined}
+    data-pagefind-filter={semester && current ? "type:resource" : undefined}
+    data-pagefind-meta={semester && current ? `title:${current.name} resources` : undefined}
+  >
     <!-- Header -->
     <div class="flex flex-col items-center mb-8 space-y-4 text-center">
       <div class="inline-flex items-center justify-center p-3 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 mb-2 shadow-[0_0_30px_rgba(99,102,241,0.2)]">
@@ -44,7 +50,7 @@ const lastUpdated = new Intl.DateTimeFormat("en-IN", {
       <p class="text-slate-400 max-w-xl text-lg">
         Comprehensive study materials, textbooks, and notes for the Artificial Intelligence curriculum.
       </p>
-      <p class="text-xs text-slate-400">
+      <p class="text-xs text-slate-400" data-pagefind-ignore>
         Last updated: <time datetime={builtAt.toISOString()}>{lastUpdated} IST</time>
       </p>
     </div>
