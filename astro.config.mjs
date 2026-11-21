@@ -44,7 +44,7 @@ export default defineConfig({
         [rehypeExternalLinks, { target: "_blank", rel: ["noopener", "noreferrer"] }],
       ],
     }),
-    shikiConfig: { theme: "github-dark-dimmed", wrap: false },
+    shikiConfig: { theme: "github-dark-default", wrap: false },
     syntaxHighlight: { type: "shiki", excludeLangs: ["math"] },
   },
   image: {

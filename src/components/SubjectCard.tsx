@@ -107,7 +107,7 @@ export default function SubjectCard({ subject, showSemesterBadge = false, rank =
                  );
                })
              ) : (
-               <p className="text-xs text-slate-500 italic py-2">No resources listed for this subject yet.</p>
+               <p className="text-xs text-slate-400 italic py-2">No resources listed for this subject yet.</p>
              )}
            </div>
          </div>

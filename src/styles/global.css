@@ -23,6 +23,26 @@
     color-scheme: dark;
     background-color: #07070a;
   }
+
+  /* A visible focus ring for keyboard users on everything focusable. Components that draw their
+     own ring (focus-visible:ring-*) set outline-none, which wins over this base rule. */
+  :focus-visible {
+    outline: 2px solid #818cf8; /* indigo-400 */
+    outline-offset: 2px;
+  }
+}
+
+/* Respect "reduce motion": no fade-ins, hover lifts or smooth scrolling. The cursor glow and the
+   typing animation are switched off in their components. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 @utility hide-scrollbar {

@@ -1,0 +1,78 @@
+# Weekly check of every external link on the built site (mostly resource links from the sheet).
+# Broken links are listed in one open issue, "Broken resource links", which is updated each run.
+name: Link check
+
+on:
+  schedule:
+    - cron: "0 3 * * 1" # Mondays 03:00 UTC (08:30 IST)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SHEET_CSV_URL: ${{ vars.SHEET_CSV_URL || secrets.SHEET_CSV_URL }}
+      ASTRO_TELEMETRY_DISABLED: "1"
+    steps:
+      - name: Require the sheet URL
+        if: env.SHEET_CSV_URL == ''
+        run: |
+          echo "::error::Set the SHEET_CSV_URL repository variable (or secret) so the real resource links can be checked."
+          exit 1
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Check links
+        id: lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # - Internal links resolve against the live site and are skipped: this build may be newer.
+          # - IIT KGP SharePoint links redirect anonymous visitors to the Microsoft login page, so a
+          #   checker can't tell a live file from a deleted one; they are skipped too.
+          args: >-
+            --no-progress
+            --max-concurrency 8
+            --max-retries 3
+            --timeout 30
+            --accept 200..=299,403,429
+            --base-url https://ai2024-chi.vercel.app
+            --exclude '^https://ai2024-chi\.vercel\.app'
+            --exclude 'iitkgpacin-my\.sharepoint\.com'
+            --exclude 'login\.microsoftonline\.com'
+            --exclude '^https://giscus\.app'
+            --exclude-path dist/admin
+            --exclude-path dist/pagefind
+            'dist/**/*.html'
+          output: ./lychee/report.md
+          fail: false
+
+      - name: Find the open "Broken resource links" issue
+        id: issue
+        if: steps.lychee.outputs.exit_code != 0
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          number=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search 'in:title "Broken resource links"' --json number --jq '.[0].number // empty')
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update the issue
+        if: steps.lychee.outputs.exit_code != 0
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: Broken resource links
+          content-filepath: ./lychee/report.md
+          issue-number: ${{ steps.issue.outputs.number }}
+          labels: broken-links

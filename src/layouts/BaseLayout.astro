@@ -5,11 +5,15 @@ import type { Props as SEOProps } from "../components/SEO.astro";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import BackgroundFX from "../components/BackgroundFX";
+import Analytics from "@vercel/analytics/astro";
 import { SITE } from "../config/site";
 
 export type Props = SEOProps;
 
 const props = Astro.props;
+// Vercel Web Analytics: opt in with PUBLIC_VERCEL_ANALYTICS=true once it is enabled in the dashboard
+// (otherwise its script 404s).
+const analytics = import.meta.env.PUBLIC_VERCEL_ANALYTICS === "true";
 ---
 
 <!doctype html>
@@ -25,6 +29,7 @@ const props = Astro.props;
     <link rel="alternate" type="application/rss+xml" title={`${SITE.name} blog`} href={new URL("/rss.xml", Astro.site)} />
     <SEO {...props} />
     <slot name="head" />
+    {analytics && <Analytics />}
   </head>
   <body class="bg-[#07070a] text-slate-200 font-sans antialiased selection:bg-indigo-500/30">
     <a

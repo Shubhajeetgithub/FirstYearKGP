@@ -5,6 +5,8 @@ interface ImportMetaEnv {
   readonly SHEET_CSV_URL?: string;
   /** The same sheet URL, exposed to the browser for the background refresh. */
   readonly VITE_SHEET_CSV_URL?: string;
+  /** "true" to load Vercel Web Analytics (enable it in the Vercel dashboard first). */
+  readonly PUBLIC_VERCEL_ANALYTICS?: string;
 }
 
 interface ImportMeta {

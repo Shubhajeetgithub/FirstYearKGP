@@ -23,6 +23,7 @@
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.6",
     "@tailwindcss/vite": "^4.3.5",
+    "@vercel/analytics": "^2.0.1",
     "astro": "^7.4.13",
     "d3-dsv": "^3.0.1",
     "katex": "^0.19.1",
