@@ -13,12 +13,17 @@ function Resources() {
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
-    loadSemesterData()
-      .then(setSemesterData)
+    let active = true;
+    const show = (data: SemesterData) => { if (active) setSemesterData(data); };
+    // Resolves with cached data straight away when there is some; `show` then gets the refresh.
+    loadSemesterData(show)
+      .then(show)
       .catch((err: unknown) => {
+        if (!active) return;
         console.error('Failed to load resources:', err);
         setError(err);
       });
+    return () => { active = false; };
   }, [attempt]);
 
   // At least 3 results (fuzzy fallback), plus every other strong match up to 12
@@ -280,17 +285,6 @@ function SubjectCard({ subject, showSemesterBadge = false, rank = null, onNaviga
                <span>
                  {count} {count === 1 ? 'resource' : 'resources'}
                </span>
-               {showSemesterBadge && subject.semester && onNavigateSemester && (
-                 <span
-                   onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
-                     e.stopPropagation();
-                     onNavigateSemester(subject.semester);
-                   }}
-                   className="text-xs text-indigo-400 hover:text-indigo-300 hover:underline cursor-pointer"
-                 >
-                   View in semester →
-                 </span>
-               )}
              </div>
           </div>
 
@@ -335,6 +329,19 @@ function SubjectCard({ subject, showSemesterBadge = false, rank = null, onNaviga
            </div>
          </div>
        </div>
+
+       {/* Footer actions live outside the toggle button: no nested interactive content. */}
+       {showSemesterBadge && subject.semester && onNavigateSemester && (
+         <div className="relative z-10 px-5 pb-4 -mt-2 flex justify-end">
+           <button
+             type="button"
+             onClick={() => onNavigateSemester(subject.semester)}
+             className="text-xs text-indigo-400 hover:text-indigo-300 hover:underline rounded outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/60"
+           >
+             View in semester →
+           </button>
+         </div>
+       )}
     </div>
   );
 }

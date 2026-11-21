@@ -12,6 +12,8 @@ interface LoadOptions {
 
 async function load(csv: string, { env = URL, response }: LoadOptions = {}) {
   vi.stubEnv("VITE_SHEET_CSV_URL", env);
+  storage.clear(); // each load() starts uncached, so it exercises the fetch path
+  vi.stubGlobal("localStorage", storage);
   const fetchMock = vi.fn<typeof fetch>(async () => response ?? new Response(csv, { status: 200 }));
   vi.stubGlobal("fetch", fetchMock);
   vi.resetModules();
@@ -21,8 +23,21 @@ async function load(csv: string, { env = URL, response }: LoadOptions = {}) {
 
 const csv = (...rows: string[]) => [HEADER, ...rows].join("\n");
 
+/** Minimal in-memory Storage; Node has no localStorage. */
+class MemoryStorage {
+  store = new Map<string, string>();
+  getItem(key: string): string | null { return this.store.get(key) ?? null; }
+  setItem(key: string, value: string): void { this.store.set(key, value); }
+  removeItem(key: string): void { this.store.delete(key); }
+  clear(): void { this.store.clear(); }
+}
+
+let storage: MemoryStorage;
+
 beforeEach(() => {
   vi.useRealTimers();
+  storage = new MemoryStorage();
+  vi.stubGlobal("localStorage", storage);
 });
 
 afterEach(() => {
@@ -245,6 +260,114 @@ describe("loadSemesterData", () => {
       // so the resource's icon is the global `Object` instead of the FileText fallback.
       const data = await (await load(csv("1,A,Alpha,,Notes,u,constructor"))).result;
       expect(data.s1.subjects[0].resources[0].icon).toBe(Object);
+    });
+  });
+  describe("stale-while-revalidate cache", () => {
+    const KEY = "kgp:sheet:v1";
+    const seed = (csvText: string, timestamp = 1) =>
+      storage.setItem(KEY, JSON.stringify({ csv: csvText, timestamp }));
+
+    /** Imports a fresh module with the given fetch stub. */
+    async function importWith(fetchImpl: typeof fetch, env = URL) {
+      vi.stubEnv("VITE_SHEET_CSV_URL", env);
+      const fetchMock = vi.fn<typeof fetch>(fetchImpl);
+      vi.stubGlobal("fetch", fetchMock);
+      vi.resetModules();
+      const mod = await import("./loadSemesterData");
+      return { ...mod, fetchMock };
+    }
+
+    it("stores the raw CSV and a timestamp after a successful fetch", async () => {
+      vi.spyOn(Date, "now").mockReturnValue(1234);
+      const text = csv("1,A,Alpha,,,,");
+      await (await load(text)).result;
+      expect(JSON.parse(storage.getItem(KEY) ?? "null")).toEqual({ csv: text, timestamp: 1234 });
+      vi.restoreAllMocks();
+    });
+
+    it("returns cached data immediately, then passes the fresh fetch to onUpdate", async () => {
+      seed(csv("1,OLD,Old Subject,,,,"));
+      let release: (r: Response) => void = () => {};
+      const { loadSemesterData, fetchMock } = await importWith(
+        () => new Promise<Response>((resolve) => { release = resolve; })
+      );
+      const onUpdate = vi.fn();
+      const data = await loadSemesterData(onUpdate);
+      expect(data.s1.subjects[0].id).toBe("OLD");
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(onUpdate).not.toHaveBeenCalled();
+
+      const fresh = csv("1,NEW,New Subject,,,,");
+      release(new Response(fresh, { status: 200 }));
+      await vi.waitFor(() => expect(onUpdate).toHaveBeenCalledTimes(1));
+      expect(onUpdate.mock.calls[0][0].s1.subjects[0].id).toBe("NEW");
+      expect(JSON.parse(storage.getItem(KEY) ?? "null").csv).toBe(fresh);
+    });
+
+    it("keeps the cache and resolves when the background refresh fails", async () => {
+      const cachedCsv = csv("1,OLD,Old Subject,,,,");
+      seed(cachedCsv);
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const { loadSemesterData } = await importWith(async () => { throw new TypeError("offline"); });
+      const onUpdate = vi.fn();
+      const data = await loadSemesterData(onUpdate);
+      expect(data.s1.subjects[0].id).toBe("OLD");
+      await vi.waitFor(() => expect(warn).toHaveBeenCalled());
+      expect(onUpdate).not.toHaveBeenCalled();
+      expect(JSON.parse(storage.getItem(KEY) ?? "null").csv).toBe(cachedCsv);
+      vi.restoreAllMocks();
+    });
+
+    it("does not overwrite the cache with an empty sheet", async () => {
+      const cachedCsv = csv("1,OLD,Old Subject,,,,");
+      seed(cachedCsv);
+      vi.spyOn(console, "warn").mockImplementation(() => {});
+      const { loadSemesterData } = await importWith(async () => new Response(HEADER, { status: 200 }));
+      await loadSemesterData();
+      await new Promise((r) => setTimeout(r, 0));
+      expect(JSON.parse(storage.getItem(KEY) ?? "null").csv).toBe(cachedCsv);
+      vi.restoreAllMocks();
+    });
+
+    it("rejects only when there is no cache and the fetch fails", async () => {
+      const { loadSemesterData } = await importWith(async () => { throw new TypeError("offline"); });
+      await expect(loadSemesterData()).rejects.toThrow("offline");
+    });
+
+    it("serves the cache without fetching when no URL is configured", async () => {
+      seed(csv("1,OLD,Old Subject,,,,"));
+      vi.spyOn(console, "warn").mockImplementation(() => {});
+      const { loadSemesterData, fetchMock } = await importWith(async () => new Response(""), "");
+      const data = await loadSemesterData();
+      expect(data.s1.subjects[0].id).toBe("OLD");
+      expect(fetchMock).not.toHaveBeenCalled();
+      vi.restoreAllMocks();
+    });
+
+    it.each([
+      ["not JSON", "{oops"],
+      ["the wrong shape", JSON.stringify({ csv: 5 })],
+      ["an empty sheet", JSON.stringify({ csv: "semester,subject_id", timestamp: 1 })],
+    ])("ignores a cache entry that is %s and fetches instead", async (_label, raw) => {
+      storage.setItem(KEY, raw);
+      const { loadSemesterData, fetchMock } = await importWith(
+        async () => new Response(csv("1,NEW,New,,,,"), { status: 200 })
+      );
+      const data = await loadSemesterData();
+      expect(data.s1.subjects[0].id).toBe("NEW");
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("works when localStorage throws on every access", async () => {
+      vi.stubGlobal("localStorage", {
+        getItem: () => { throw new DOMException("blocked", "SecurityError"); },
+        setItem: () => { throw new DOMException("blocked", "SecurityError"); },
+      });
+      vi.stubEnv("VITE_SHEET_CSV_URL", URL);
+      vi.stubGlobal("fetch", vi.fn(async () => new Response(csv("1,A,Alpha,,,,"), { status: 200 })));
+      vi.resetModules();
+      const { loadSemesterData } = await import("./loadSemesterData");
+      await expect(loadSemesterData()).resolves.toMatchObject({ s1: expect.any(Object) });
     });
   });
 });

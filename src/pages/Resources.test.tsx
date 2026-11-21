@@ -69,6 +69,7 @@ const search = (value: string) => fireEvent.change(searchBox(), { target: { valu
 const cardTitles = () => screen.queryAllByRole("heading", { level: 3 }).map((h) => h.textContent);
 const semesterButton = (n: number) => required(screen.getByText(`Semester ${n}`).closest("button"));
 const cardFor = (name: string) => required(screen.getByText(name).closest("button"));
+const cardContainer = (toggle: HTMLElement) => required(toggle.parentElement);
 
 describe("Resources", () => {
   describe("loading and errors", () => {
@@ -88,6 +89,18 @@ describe("Resources", () => {
       await screen.findByText("Academic Resources");
       expect(loadSemesterData).toHaveBeenCalledTimes(2);
     });
+  });
+
+  it("shows cached data first, then the background refresh passed to onUpdate", async () => {
+    let refresh: (data: SemesterData) => void = () => {};
+    vi.mocked(loadSemesterData).mockImplementation(async (onUpdate) => {
+      refresh = (data) => onUpdate?.(data);
+      return DATA;
+    });
+    render(<Resources />);
+    await screen.findByText("Advanced Calculus");
+    act(() => refresh({ s1: { name: "Semester 1", subjects: [subject("s1", "NEW1", "Fresh Subject")] } }));
+    expect(cardTitles()).toEqual(["Fresh Subject"]);
   });
 
   describe("semester view", () => {
@@ -163,6 +176,17 @@ describe("Resources", () => {
   });
 
   describe("search", () => {
+    it("renders 'View in semester' as its own button, not inside the card toggle", async () => {
+      await renderLoaded();
+      search("reinforcement");
+      const card = cardFor("Reinforcement Learning");
+      const view = within(cardContainer(card)).getByText("View in semester →");
+      expect(view.tagName).toBe("BUTTON");
+      expect(view.getAttribute("type")).toBe("button");
+      expect(card.contains(view)).toBe(false);
+      expect(card.querySelector("button, a")).toBeNull();
+    });
+
     it("shows ranked matches with semester badges", async () => {
       await renderLoaded();
       search("data");
@@ -209,7 +233,7 @@ describe("Resources", () => {
       await renderLoaded();
       search("reinforcement");
       const card = cardFor("Reinforcement Learning");
-      fireEvent.click(within(card).getByText("View in semester →"));
+      fireEvent.click(within(cardContainer(card)).getByText("View in semester →"));
       expect(searchBox().value).toBe("");
       expect(cardTitles()).toEqual(["Reinforcement Learning"]);
       expect(card.isConnected).toBe(false);
@@ -219,7 +243,7 @@ describe("Resources", () => {
       await renderLoaded();
       search("reinforcement");
       const card = cardFor("Reinforcement Learning");
-      fireEvent.click(within(card).getByText("View in semester →"));
+      fireEvent.click(within(cardContainer(card)).getByText("View in semester →"));
       // The search card unmounts; the semester card starts collapsed.
       const semesterCard = cardFor("Reinforcement Learning");
       expect(semesterCard.getAttribute("aria-expanded")).toBe("false");
