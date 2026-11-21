@@ -77,7 +77,13 @@ collections:
       - { name: coverAlt, label: Cover description (alt text), widget: string, required: false }
       - { name: math, label: Uses maths (KaTeX), widget: boolean, default: false, hint: "Write $inline$ and $$display$$ LaTeX." }
       - { name: draft, label: Draft, widget: boolean, default: true, hint: "Drafts are not published." }
-      - { name: body, label: Body, widget: markdown }
+      # Plain Markdown only: the rich-text mode reads \; \, \! as Markdown escapes and drops the
+      # backslashes (and escapes * and _), which corrupts LaTeX when the post is saved.
+      - name: body
+        label: Body
+        widget: markdown
+        modes: [raw]
+        hint: "Markdown. Maths: $inline$ or $$ on its own line for display maths. The preview renders it."
 
   - name: authors
     label: Authors

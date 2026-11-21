@@ -1,0 +1,26 @@
+/* Styles for the CMS blog preview (public/admin/preview.js). */
+.post-preview {
+  max-width: 46rem;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+.post-preview-description {
+  opacity: 0.75;
+  font-size: 1.1em;
+}
+.post-preview .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25rem 0;
+}
+.post-preview img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+.post-preview pre {
+  overflow-x: auto;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background: rgb(127 127 127 / 0.12);
+}

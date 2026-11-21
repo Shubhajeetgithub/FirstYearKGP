@@ -11,5 +11,9 @@
   <body>
     <!-- Per Sveltia's docs: a classic script (no type="module") and no version pin. -->
     <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
+    <!-- Maths in the blog preview (self-hosted copies, see scripts/copy-vendor.mjs). -->
+    <script src="/vendor/marked/marked.umd.js"></script>
+    <script src="/vendor/katex/katex.min.js"></script>
+    <script src="/admin/preview.js"></script>
   </body>
 </html>
