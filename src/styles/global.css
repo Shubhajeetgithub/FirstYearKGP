@@ -1,0 +1,32 @@
+@import "tailwindcss";
+/* Tests are not UI; keep their identifiers (e.g. `container`) out of the generated CSS. */
+@source not "../**/*.test.{ts,tsx}";
+
+@theme {
+  --animate-fade-up: fade-up 0.5s ease-out;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(2rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background-color: #07070a;
+  }
+}
+
+@utility hide-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

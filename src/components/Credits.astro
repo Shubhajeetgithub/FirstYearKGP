@@ -1,0 +1,29 @@
+---
+import { Image } from "astro:assets";
+
+const people = [
+  { name: "Shubhajeet Das", email: "shubhajeet [at] kgpian.iitkgp.ac.in", image: "https://raw.githubusercontent.com/Shubhajeetgithub/photos/main/shubhajeet.jpeg" },
+  { name: "Kingshuk Patra", email: "kingshuk [at] kgpian.iitkgp.ac.in", image: "https://raw.githubusercontent.com/Shubhajeetgithub/photos/main/kingshuk.jpeg" },
+  { name: "Durva Daga", email: "durva [at] kgpian.iitkgp.ac.in", image: "https://raw.githubusercontent.com/Shubhajeetgithub/photos/main/durva.jpeg" },
+];
+---
+
+<section class="mt-24 mb-16 text-center relative z-10 w-full max-w-5xl mx-auto px-4" aria-labelledby="credits-heading">
+  <h2 id="credits-heading" class="text-sm font-bold tracking-widest uppercase mb-12 text-slate-400">Core Contributors</h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    {
+      people.map((person) => (
+        <div class="group relative rounded-2xl p-6 bg-white/5 border border-white/5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:bg-white/10 hover:border-indigo-500/30">
+          <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/0 to-purple-500/0 group-hover:from-indigo-500/10 group-hover:to-purple-500/10 rounded-2xl transition-all duration-300" />
+          <div class="relative mb-6 flex justify-center">
+            <div class="w-24 h-24 rounded-full overflow-hidden border-2 border-indigo-500/30 group-hover:border-indigo-400 transition-colors shadow-lg">
+              <Image class="w-full h-full object-cover" src={person.image} alt={person.name} width={192} height={192} loading="lazy" />
+            </div>
+          </div>
+          <div class="relative text-white font-bold text-lg mb-1">{person.name}</div>
+          <div class="relative text-indigo-300/80 text-xs font-mono break-all">{person.email}</div>
+        </div>
+      ))
+    }
+  </div>
+</section>

@@ -1,0 +1,60 @@
+---
+import { Library } from "lucide-react";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ResourcesExplorer from "./ResourcesExplorer";
+import { getBuildSheet } from "../lib/buildSheet";
+import { SITE, semesterPageDescription, semesterPageTitle } from "../config/site";
+import type { SemesterKey } from "../types/semester";
+
+export interface Props {
+  /** The semester route being rendered; omitted on /resources. */
+  semester?: SemesterKey;
+}
+
+const { semester } = Astro.props;
+const { data, fetchedAt } = await getBuildSheet();
+const keys = Object.keys(data);
+const initialSemester = semester ?? (data.s1 ? "s1" : keys[0]);
+const current = data[initialSemester];
+
+const title = semester && current ? semesterPageTitle(current.name) : `Academic Resources — ${SITE.name}, IIT KGP`;
+const description =
+  semester && current
+    ? semesterPageDescription(current.name, current.subjects.map((s) => s.name))
+    : "Notes, slides, textbooks and study material for every semester of the AI Batch 2024 at IIT Kharagpur, searchable by subject name, course code or initials.";
+
+const builtAt = new Date(fetchedAt);
+const lastUpdated = new Intl.DateTimeFormat("en-IN", {
+  dateStyle: "medium",
+  timeStyle: "short",
+  timeZone: "Asia/Kolkata",
+}).format(builtAt);
+---
+
+<BaseLayout title={title} description={description}>
+  <div class="w-full" data-resource-page={semester ?? ""}>
+    <!-- Header -->
+    <div class="flex flex-col items-center mb-8 space-y-4 text-center">
+      <div class="inline-flex items-center justify-center p-3 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 mb-2 shadow-[0_0_30px_rgba(99,102,241,0.2)]">
+        <Library className="w-8 h-8 text-indigo-400" aria-hidden="true" />
+      </div>
+      <h1 class="text-4xl md:text-5xl font-bold text-white tracking-tight">
+        Academic Resources{semester && current && <span class="sr-only">: {current.name}</span>}
+      </h1>
+      <p class="text-slate-400 max-w-xl text-lg">
+        Comprehensive study materials, textbooks, and notes for the Artificial Intelligence curriculum.
+      </p>
+      <p class="text-xs text-slate-400">
+        Last updated: <time datetime={builtAt.toISOString()}>{lastUpdated} IST</time>
+      </p>
+    </div>
+
+    <ResourcesExplorer
+      client:load
+      data={data}
+      initialSemester={initialSemester}
+      builtAt={fetchedAt}
+      sheetUrl={import.meta.env.VITE_SHEET_CSV_URL}
+    />
+  </div>
+</BaseLayout>

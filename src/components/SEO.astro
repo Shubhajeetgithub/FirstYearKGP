@@ -1,0 +1,61 @@
+---
+import { SITE } from "../config/site";
+import { cleanPath } from "../lib/url";
+
+export interface Props {
+  title: string;
+  description: string;
+  /** Absolute URL or site-relative path; defaults to the site OG image. */
+  image?: string;
+  imageAlt?: string;
+  type?: "website" | "article";
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  /** Author profile URLs, for article:author. */
+  authors?: string[];
+  tags?: string[];
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  image = SITE.ogImage,
+  imageAlt = SITE.title,
+  type = "website",
+  publishedTime,
+  modifiedTime,
+  authors = [],
+  tags = [],
+  noindex = false,
+} = Astro.props;
+
+const site = Astro.site ?? new URL(SITE.url);
+// trailingSlash is "never": canonical URLs have no trailing slash (except the home page).
+const canonical = new URL(cleanPath(Astro.url.pathname), site).href;
+const imageUrl = new URL(image, site).href;
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex" />}
+
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={SITE.name} />
+<meta property="og:locale" content="en_IN" />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={imageUrl} />
+<meta property="og:image:alt" content={imageAlt} />
+{type === "article" && publishedTime && <meta property="article:published_time" content={publishedTime.toISOString()} />}
+{type === "article" && modifiedTime && <meta property="article:modified_time" content={modifiedTime.toISOString()} />}
+{type === "article" && authors.map((a) => <meta property="article:author" content={a} />)}
+{type === "article" && tags.map((t) => <meta property="article:tag" content={t} />)}
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={imageUrl} />
+<meta name="twitter:image:alt" content={imageAlt} />

@@ -1,0 +1,25 @@
+# Rebuilds the site daily so edits to the resources Google Sheet go live without a commit.
+# Needs the repo secret VERCEL_DEPLOY_HOOK (Vercel → Project → Settings → Git → Deploy Hooks).
+name: Daily rebuild
+
+on:
+  schedule:
+    - cron: "30 0 * * *" # 00:30 UTC ≈ 06:00 IST
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  trigger-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Trigger the Vercel deploy hook
+        env:
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$VERCEL_DEPLOY_HOOK" ]; then
+            echo "::warning::VERCEL_DEPLOY_HOOK secret is not set; skipping the rebuild."
+            exit 0
+          fi
+          curl --fail --silent --show-error -X POST "$VERCEL_DEPLOY_HOOK"

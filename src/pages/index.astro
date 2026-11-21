@@ -1,0 +1,11 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Welcome from "../components/Welcome.astro";
+import Credits from "../components/Credits.astro";
+import { SITE } from "../config/site";
+---
+
+<BaseLayout title={SITE.title} description={SITE.description}>
+  <Welcome />
+  <Credits />
+</BaseLayout>
