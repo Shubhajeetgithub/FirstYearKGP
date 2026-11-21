@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { loadBuildSheet } from "./buildSheet";
 
@@ -11,6 +12,18 @@ afterEach(() => {
 describe("loadBuildSheet", () => {
   it("fails with a clear message when no URL is configured", async () => {
     await expect(loadBuildSheet(undefined)).rejects.toThrow(/SHEET_CSV_URL is not set/);
+  });
+
+  it("falls back to a local CSV file only when no URL is set", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const file = fileURLToPath(new URL("../../fixtures/sheet.sample.csv", import.meta.url));
+    const sheet = await loadBuildSheet(undefined, file);
+    expect(Object.keys(sheet.data)).toEqual(["s1", "s2", "s3"]);
+    const fetchMock = vi.fn(async () => new Response(`${HEADER}
+9,Z,Zed,,,,`, { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    const fromUrl = await loadBuildSheet("https://example.test/sheet.csv", "ignored.csv");
+    expect(Object.keys(fromUrl.data)).toEqual(["s9"]);
   });
 
   it("returns the parsed data and when it was fetched", async () => {

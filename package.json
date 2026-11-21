@@ -13,7 +13,8 @@
     "test": "vitest run",
     "typecheck": "astro check && tsc --noEmit",
     "images": "node scripts/generate-images.mjs",
-    "astro": "astro"
+    "astro": "astro",
+    "check:images": "node scripts/check-images.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.3.10",

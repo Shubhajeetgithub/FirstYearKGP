@@ -1,4 +1,5 @@
 // Build-time only: reads server env vars and fails the build instead of deploying empty pages.
+import { readFile } from "node:fs/promises";
 import { fetchSheetCsv, parseSheet } from "./sheet";
 import type { SemesterData } from "../types/semester";
 
@@ -22,7 +23,19 @@ export function buildSheetUrl(): string | undefined {
   );
 }
 
-async function load(url: string | undefined): Promise<BuildSheet> {
+/**
+ * A local CSV used instead of the sheet when no URL is configured: CI on pull requests from forks
+ * (no secrets) and contributors without the sheet URL. Never set it on Vercel.
+ */
+export function buildSheetFile(): string | undefined {
+  return process.env.SHEET_CSV_FILE || undefined;
+}
+
+async function load(url: string | undefined, file: string | undefined = undefined): Promise<BuildSheet> {
+  if (!url && file) {
+    console.warn(`[resources] SHEET_CSV_URL is not set; building from the local file ${file}.`);
+    return { data: parseSheet(await readFile(file, "utf8")), fetchedAt: Date.now() };
+  }
   if (!url) {
     throw new Error(
       "[resources] SHEET_CSV_URL is not set, so the resources pages cannot be built. " +
@@ -50,7 +63,7 @@ let pending: Promise<BuildSheet> | undefined;
 
 /** Loads the sheet once per build; every resources page shares the result. */
 export function getBuildSheet(): Promise<BuildSheet> {
-  pending ??= load(buildSheetUrl());
+  pending ??= load(buildSheetUrl(), buildSheetFile());
   return pending;
 }
 

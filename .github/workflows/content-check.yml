@@ -1,0 +1,55 @@
+# Catches bad frontmatter, type errors and broken builds before they reach main.
+# Vercel would refuse to deploy a broken build anyway; this makes the error visible on the PR.
+name: Content check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    paths:
+      - "src/content/**"
+      - "public/images/blog/**"
+      - "public/admin/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: content-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # The published sheet URL (repo variable or secret). Without it, e.g. on pull requests from
+      # forks, the build uses the sample CSV so content can still be checked.
+      SHEET_CSV_URL: ${{ vars.SHEET_CSV_URL || secrets.SHEET_CSV_URL }}
+      ASTRO_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Use the sample sheet when no URL is configured
+        if: env.SHEET_CSV_URL == ''
+        run: echo "SHEET_CSV_FILE=fixtures/sheet.sample.csv" >> "$GITHUB_ENV"
+
+      - run: npm ci
+
+      - name: Image sizes
+        run: npm run check:images
+
+      - name: Type and frontmatter check
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
