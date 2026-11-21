@@ -1,0 +1,69 @@
+---
+import PostCard from "./PostCard.astro";
+import type { Post } from "../lib/blog";
+import { tagUrl } from "../lib/posts";
+
+export interface Props {
+  posts: Post[];
+  /** Tag counts for the filter row. */
+  tags: [string, number][];
+  /** Highlighted tag in the filter row, on tag pages. */
+  activeTag?: string;
+  currentPage?: number;
+  lastPage?: number;
+  prevUrl?: string;
+  nextUrl?: string;
+}
+
+const { posts, tags, activeTag, currentPage = 1, lastPage = 1, prevUrl, nextUrl } = Astro.props;
+const chip = "text-sm px-3 py-1 rounded-full border transition-colors";
+const chipActive = "bg-indigo-500/20 border-indigo-500/50 text-white";
+const chipIdle = "bg-white/5 border-white/10 text-slate-300 hover:text-white hover:border-indigo-500/40";
+---
+
+{
+  tags.length > 0 && (
+    <nav aria-label="Filter posts by tag" class="mb-10">
+      <ul class="flex flex-wrap justify-center gap-2">
+        <li>
+          <a href="/blog" class:list={[chip, activeTag ? chipIdle : chipActive]} aria-current={activeTag ? undefined : "page"}>All</a>
+        </li>
+        {tags.slice(0, 15).map(([tag, count]) => (
+          <li>
+            <a href={tagUrl(tag)} class:list={[chip, tag === activeTag ? chipActive : chipIdle]} aria-current={tag === activeTag ? "page" : undefined}>
+              #{tag} <span class="text-slate-400">{count}</span>
+            </a>
+          </li>
+        ))}
+        {tags.length > 15 && (
+          <li><a href="/blog/tags" class:list={[chip, chipIdle]}>All tags →</a></li>
+        )}
+      </ul>
+    </nav>
+  )
+}
+
+{
+  posts.length > 0 ? (
+    <div class="grid gap-6 md:grid-cols-2 max-w-5xl mx-auto w-full">
+      {posts.map((post) => <PostCard post={post} />)}
+    </div>
+  ) : (
+    <div class="max-w-xl mx-auto text-center rounded-2xl border border-white/10 bg-white/5 p-10">
+      <p class="text-slate-300 font-semibold">No posts yet.</p>
+      <p class="mt-2 text-sm text-slate-400">
+        Be the first: <a href="/blog/contribute" class="text-indigo-300 hover:text-indigo-200">write for the blog</a>.
+      </p>
+    </div>
+  )
+}
+
+{
+  lastPage > 1 && (
+    <nav aria-label="Pagination" class="mt-12 flex items-center justify-center gap-4 text-sm">
+      {prevUrl ? <a href={prevUrl} rel="prev" class:list={[chip, chipIdle]}>← Newer</a> : <span class="w-20" />}
+      <span class="text-slate-400">Page {currentPage} of {lastPage}</span>
+      {nextUrl ? <a href={nextUrl} rel="next" class:list={[chip, chipIdle]}>Older →</a> : <span class="w-20" />}
+    </nav>
+  )
+}

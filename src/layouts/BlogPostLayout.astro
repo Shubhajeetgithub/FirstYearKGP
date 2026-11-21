@@ -1,0 +1,168 @@
+---
+import type { MarkdownHeading } from "astro";
+import { Image } from "astro:assets";
+import BaseLayout from "./BaseLayout.astro";
+import Avatar from "../components/Avatar.astro";
+import AuthorCard from "../components/AuthorCard.astro";
+import TOC from "../components/TOC.astro";
+import { SITE } from "../config/site";
+import type { Author, Post } from "../lib/blog";
+import { authorUrl, avatarUrl, formatDate, postUrl, tagUrl } from "../lib/posts";
+
+export interface Props {
+  post: Post;
+  authors: Author[];
+  headings: MarkdownHeading[];
+  minutesRead?: number;
+  /** Newer and older posts, for the prev/next links. */
+  newer?: Post;
+  older?: Post;
+}
+
+const { post, authors, headings, minutesRead, newer, older } = Astro.props;
+const { title, description, pubDate, updatedDate, tags, subject, cover, coverAlt, math, draft } = post.data;
+
+const site = Astro.site ?? new URL(SITE.url);
+const url = new URL(postUrl(post.id), site).href;
+const lastUpdated = updatedDate ?? pubDate;
+const editUrl = post.filePath ? `${SITE.repoUrl}/edit/${SITE.branch}/${post.filePath}` : undefined;
+const authorProfiles = authors.map((a) => new URL(authorUrl(a.id), site).href);
+
+// Social image: the optimised cover when there is one, else the site default.
+const socialImage = cover ? cover.src : undefined;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: title,
+  description,
+  datePublished: pubDate.toISOString(),
+  dateModified: lastUpdated.toISOString(),
+  mainEntityOfPage: { "@type": "WebPage", "@id": url },
+  url,
+  image: new URL(socialImage ?? SITE.ogImage, site).href,
+  keywords: tags.join(", ") || undefined,
+  author: authors.map((a) => ({
+    "@type": "Person",
+    name: a.data.name,
+    url: new URL(authorUrl(a.id), site).href,
+    image: avatarUrl(a.data),
+    sameAs: [`https://github.com/${a.data.github}`],
+  })),
+  publisher: { "@type": "Organization", name: SITE.name, url: site.href, logo: new URL("/apple-touch-icon.png", site).href },
+};
+---
+
+<BaseLayout
+  title={`${title} — ${SITE.name} Blog`}
+  description={description}
+  type="article"
+  image={socialImage}
+  imageAlt={coverAlt ?? title}
+  publishedTime={pubDate}
+  modifiedTime={updatedDate}
+  authors={authorProfiles}
+  tags={tags}
+  noindex={draft}
+>
+  <Fragment slot="head">
+    {math && <link rel="stylesheet" href="/vendor/katex/katex.min.css" />}
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </Fragment>
+
+  <article class="w-full max-w-6xl mx-auto" data-pagefind-body data-pagefind-filter="type:blog">
+    <header class="max-w-3xl mx-auto text-center mb-10">
+      <a href="/blog" class="text-sm text-indigo-300 hover:text-indigo-200 transition-colors" data-pagefind-ignore>← All posts</a>
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-2 text-xs">
+        {draft && <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold">Draft (not published)</span>}
+        {subject && <span class="font-mono font-semibold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30" data-pagefind-filter="subject">{subject}</span>}
+        {tags.map((tag) => (
+          <a href={tagUrl(tag)} class="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:border-indigo-500/40 transition-colors">#{tag}</a>
+        ))}
+      </div>
+      <h1 class="mt-5 text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight" data-pagefind-meta="title">{title}</h1>
+      <p class="mt-4 text-lg text-slate-400 leading-relaxed">{description}</p>
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-slate-400">
+        <span class="flex items-center gap-2">
+          <span class="flex -space-x-2">
+            {authors.map((a) => <Avatar author={a.data} size={32} class="ring-2 ring-[#07070a]" />)}
+          </span>
+          <span class="text-slate-200">
+            {authors.map((a, i) => (
+              <>
+                {i > 0 && (i === authors.length - 1 ? " & " : ", ")}
+                <a href={authorUrl(a.id)} class="hover:text-indigo-300 transition-colors">{a.data.name}</a>
+              </>
+            ))}
+          </span>
+        </span>
+        <time datetime={pubDate.toISOString()} data-pagefind-meta="date">{formatDate(pubDate)}</time>
+        {minutesRead && <span>{minutesRead} min read</span>}
+      </div>
+    </header>
+
+    {
+      cover && (
+        <figure class="max-w-4xl mx-auto mb-12">
+          <Image
+            src={cover}
+            alt={coverAlt ?? ""}
+            widths={[640, 960, 1280]}
+            sizes="(min-width: 1024px) 896px, 100vw"
+            loading="eager"
+            fetchpriority="high"
+            class="w-full h-auto rounded-2xl border border-white/10"
+          />
+        </figure>
+      )
+    }
+
+    <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_14rem] lg:gap-12">
+      <aside class="mb-8 lg:mb-0 lg:order-2" data-pagefind-ignore>
+        <div class="lg:sticky lg:top-32">
+          <TOC headings={headings} />
+        </div>
+      </aside>
+
+      <div class="min-w-0 lg:order-1">
+        <div class="prose prose-invert prose-lg max-w-none prose-post">
+          <slot />
+        </div>
+
+        <footer class="mt-12 space-y-8" data-pagefind-ignore>
+          <div class="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-400 border-t border-white/10 pt-6">
+            <span>Last updated <time datetime={lastUpdated.toISOString()}>{formatDate(lastUpdated)}</time></span>
+            {editUrl && (
+              <a href={editUrl} target="_blank" rel="noopener noreferrer" class="text-indigo-300 hover:text-indigo-200 transition-colors">
+                Edit this post on GitHub ↗
+              </a>
+            )}
+          </div>
+
+          <div class="space-y-4">
+            {authors.map((author) => <AuthorCard author={author} />)}
+          </div>
+
+          {(newer || older) && (
+            <nav aria-label="More posts" class="grid gap-4 sm:grid-cols-2">
+              {older ? (
+                <a href={postUrl(older.id)} class="rounded-2xl border border-white/10 bg-white/5 p-5 hover:border-indigo-500/40 transition-colors">
+                  <span class="text-xs uppercase tracking-widest text-slate-400">← Previous</span>
+                  <span class="mt-1 block font-semibold text-white">{older.data.title}</span>
+                </a>
+              ) : <span />}
+              {newer && (
+                <a href={postUrl(newer.id)} class="rounded-2xl border border-white/10 bg-white/5 p-5 text-right hover:border-indigo-500/40 transition-colors">
+                  <span class="text-xs uppercase tracking-widest text-slate-400">Next →</span>
+                  <span class="mt-1 block font-semibold text-white">{newer.data.title}</span>
+                </a>
+              )}
+            </nav>
+          )}
+
+          <slot name="comments" />
+        </footer>
+      </div>
+    </div>
+  </article>
+</BaseLayout>

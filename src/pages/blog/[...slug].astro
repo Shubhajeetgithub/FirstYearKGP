@@ -1,0 +1,28 @@
+---
+import type { GetStaticPaths } from "astro";
+import { render } from "astro:content";
+import BlogPostLayout from "../../layouts/BlogPostLayout.astro";
+import { getPostAuthors, getPosts } from "../../lib/blog";
+import type { Post } from "../../lib/blog";
+import { neighbours } from "../../lib/posts";
+
+export const getStaticPaths = (async () => {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post, ...neighbours(posts, post.id) } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  post: Post;
+  newer?: Post;
+  older?: Post;
+}
+
+const { post, newer, older } = Astro.props;
+const { Content, headings, remarkPluginFrontmatter } = await render(post);
+const authors = await getPostAuthors(post);
+const minutesRead = typeof remarkPluginFrontmatter.minutesRead === "number" ? remarkPluginFrontmatter.minutesRead : undefined;
+---
+
+<BlogPostLayout post={post} authors={authors} headings={headings} minutesRead={minutesRead} newer={newer} older={older}>
+  <Content />
+</BlogPostLayout>

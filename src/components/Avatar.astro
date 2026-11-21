@@ -1,0 +1,23 @@
+---
+import { Image } from "astro:assets";
+import { avatarUrl } from "../lib/posts";
+
+export interface Props {
+  author: { name: string; github: string; avatar?: string };
+  /** Rendered size in CSS pixels; the image is fetched at 2x. */
+  size: number;
+  class?: string;
+}
+
+const { author, size, class: className } = Astro.props;
+---
+
+<Image
+  src={avatarUrl(author, size * 2)}
+  alt=""
+  width={size * 2}
+  height={size * 2}
+  loading="lazy"
+  class:list={["rounded-full object-cover border border-indigo-500/30 shrink-0", className]}
+  style={`width:${size}px;height:${size}px`}
+/>

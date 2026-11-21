@@ -1,0 +1,64 @@
+---
+import { render } from "astro:content";
+import Avatar from "./Avatar.astro";
+import { getPostAuthors } from "../lib/blog";
+import type { Post } from "../lib/blog";
+import { authorUrl, formatDate, postUrl, tagUrl } from "../lib/posts";
+
+export interface Props {
+  post: Post;
+  /** Heading level of the title in the surrounding page. */
+  headingLevel?: 2 | 3;
+}
+
+const { post, headingLevel = 2 } = Astro.props;
+const authors = await getPostAuthors(post);
+// The reading-time remark plugin writes minutesRead into the rendered frontmatter.
+const { minutesRead } = (await render(post)).remarkPluginFrontmatter as { minutesRead?: number };
+const Heading = headingLevel === 2 ? "h2" : "h3";
+---
+
+<article class="group relative rounded-2xl border border-white/10 bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl p-6 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-500/30 focus-within:border-indigo-500/40">
+  <div class="flex flex-wrap items-center gap-2 mb-3 text-xs">
+    {post.data.draft && <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold">Draft</span>}
+    {post.data.subject && (
+      <span class="font-mono font-semibold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">{post.data.subject}</span>
+    )}
+    <time datetime={post.data.pubDate.toISOString()} class="text-slate-400">{formatDate(post.data.pubDate)}</time>
+    {minutesRead && <span class="text-slate-400" aria-label={`${minutesRead} minute read`}>· {minutesRead} min read</span>}
+  </div>
+
+  <Heading class="text-xl font-bold text-white leading-snug">
+    <a href={postUrl(post.id)} class="outline-none after:absolute after:inset-0 after:rounded-2xl focus-visible:after:ring-2 focus-visible:after:ring-indigo-500/60">
+      {post.data.title}
+    </a>
+  </Heading>
+  <p class="mt-2 text-slate-400 leading-relaxed">{post.data.description}</p>
+
+  <div class="relative z-10 mt-5 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-2 min-w-0">
+      <div class="flex -space-x-2">
+        {authors.map((a) => <Avatar author={a.data} size={28} class="ring-2 ring-[#0d0d14]" />)}
+      </div>
+      <p class="text-sm text-slate-300 truncate">
+        {authors.map((a, i) => (
+          <>
+            {i > 0 && (i === authors.length - 1 ? " & " : ", ")}
+            <a href={authorUrl(a.id)} class="hover:text-indigo-300 transition-colors">{a.data.name}</a>
+          </>
+        ))}
+      </p>
+    </div>
+    {post.data.tags.length > 0 && (
+      <ul class="flex flex-wrap gap-1.5" aria-label="Tags">
+        {post.data.tags.map((tag) => (
+          <li>
+            <a href={tagUrl(tag)} class="text-xs px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:border-indigo-500/40 transition-colors">
+              #{tag}
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</article>

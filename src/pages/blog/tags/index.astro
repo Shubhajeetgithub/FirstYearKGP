@@ -1,0 +1,31 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import BlogHeader from "../../../components/BlogHeader.astro";
+import { getPosts } from "../../../lib/blog";
+import { tagCounts, tagUrl } from "../../../lib/posts";
+import { SITE } from "../../../config/site";
+
+const tags = tagCounts(await getPosts());
+---
+
+<BaseLayout title={`Tags — ${SITE.name} Blog`} description="Every topic on the AI Batch 2024 student blog, with post counts.">
+  <BlogHeader title="Tags" subtitle={`${tags.length} ${tags.length === 1 ? "topic" : "topics"} so far.`}>
+    <a href="/blog" class="text-sm text-indigo-300 hover:text-indigo-200 transition-colors">← All posts</a>
+  </BlogHeader>
+  {
+    tags.length ? (
+      <ul class="flex flex-wrap justify-center gap-3 max-w-3xl mx-auto">
+        {tags.map(([tag, count]) => (
+          <li>
+            <a href={tagUrl(tag)} class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-slate-200 hover:text-white hover:border-indigo-500/40 transition-colors">
+              #{tag}
+              <span class="text-xs px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300">{count}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="text-center text-slate-400">No tags yet.</p>
+    )
+  }
+</BaseLayout>

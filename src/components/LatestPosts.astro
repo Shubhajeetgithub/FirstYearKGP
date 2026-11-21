@@ -1,0 +1,24 @@
+---
+import PostCard from "./PostCard.astro";
+import type { Post } from "../lib/blog";
+
+export interface Props {
+  posts: Post[];
+}
+
+const { posts } = Astro.props;
+---
+
+{
+  posts.length > 0 && (
+    <section class="mt-24 w-full max-w-5xl mx-auto px-4" aria-labelledby="latest-posts-heading">
+      <div class="flex items-end justify-between gap-4 mb-8">
+        <h2 id="latest-posts-heading" class="text-sm font-bold tracking-widest uppercase text-slate-400">Latest from the blog</h2>
+        <a href="/blog" class="text-sm text-indigo-300 hover:text-indigo-200 transition-colors">All posts →</a>
+      </div>
+      <div class="grid gap-6 md:grid-cols-3">
+        {posts.map((post) => <PostCard post={post} headingLevel={3} />)}
+      </div>
+    </section>
+  )
+}

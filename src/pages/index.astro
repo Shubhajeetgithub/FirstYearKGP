@@ -1,11 +1,21 @@
 ---
+import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Welcome from "../components/Welcome.astro";
+import LatestPosts from "../components/LatestPosts.astro";
 import Credits from "../components/Credits.astro";
+import { getPosts } from "../lib/blog";
 import { SITE } from "../config/site";
+
+const [posts, core] = await Promise.all([
+  getPosts(),
+  getCollection("authors", (a) => a.data.core),
+]);
+core.sort((a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name));
 ---
 
 <BaseLayout title={SITE.title} description={SITE.description}>
   <Welcome />
-  <Credits />
+  <LatestPosts posts={posts.slice(0, 3)} />
+  <Credits authors={core} />
 </BaseLayout>

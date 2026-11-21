@@ -1,0 +1,37 @@
+---
+import type { MarkdownHeading } from "astro";
+
+export interface Props {
+  headings: MarkdownHeading[];
+}
+
+// h2 and h3 only; deeper levels make the list too long to be useful.
+const items = Astro.props.headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+{
+  items.length > 1 && (
+    <nav aria-label="Table of contents" class="text-sm">
+      <details class="group rounded-2xl border border-white/10 bg-white/5 lg:bg-transparent lg:border-0 lg:p-0 p-4" open>
+        <summary class="cursor-pointer list-none font-semibold text-slate-200 lg:text-xs lg:uppercase lg:tracking-widest lg:text-slate-400 flex items-center justify-between">
+          On this page
+          <span class="lg:hidden text-slate-400 transition-transform group-open:rotate-180" aria-hidden="true">▾</span>
+        </summary>
+        <ol class="mt-3 space-y-2 border-l border-white/10">
+          {items.map((h) => (
+            <li class:list={[h.depth === 3 ? "pl-7" : "pl-4"]}>
+              <a href={`#${h.slug}`} class="block -ml-px border-l border-transparent pl-0 text-slate-400 hover:text-indigo-300 transition-colors">
+                {h.text}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </details>
+    </nav>
+  )
+}
+<script>
+  // Collapsed by default on phones (it sits above the article there); open on desktop, where it is a sidebar.
+  const toc = document.querySelector<HTMLDetailsElement>('nav[aria-label="Table of contents"] details');
+  if (toc && !window.matchMedia("(min-width: 1024px)").matches) toc.open = false;
+</script>

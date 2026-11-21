@@ -1,0 +1,32 @@
+---
+import Avatar from "./Avatar.astro";
+import type { Author } from "../lib/blog";
+import { authorUrl } from "../lib/posts";
+
+export interface Props {
+  author: Author;
+}
+
+const { author } = Astro.props;
+const { name, github, role, bio } = author.data;
+---
+
+<div class="flex items-start gap-4 rounded-2xl border border-white/10 bg-white/5 p-5">
+  <Avatar author={author.data} size={56} />
+  <div class="min-w-0">
+    <p class="text-xs uppercase tracking-widest text-slate-400">Written by</p>
+    <p class="text-lg font-bold text-white">
+      <a href={authorUrl(author.id)} class="hover:text-indigo-300 transition-colors">{name}</a>
+    </p>
+    {role && <p class="text-sm text-indigo-300/80">{role}</p>}
+    {bio && <p class="mt-2 text-sm text-slate-400 leading-relaxed">{bio}</p>}
+    <a
+      href={`https://github.com/${github}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="mt-2 inline-block text-sm text-slate-400 hover:text-indigo-300 transition-colors"
+    >
+      @{github} on GitHub
+    </a>
+  </div>
+</div>
