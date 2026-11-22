@@ -1,5 +1,5 @@
 // Self-hosts third-party browser files under public/vendor (gitignored), before `dev` and `build`:
-// - KaTeX stylesheet and fonts: linked by blog posts with `math: true`.
+// - KaTeX stylesheet and fonts: linked by blog posts that contain maths.
 // - KaTeX and marked scripts: used by the CMS preview (public/admin/preview.js) to render maths.
 import { cp, mkdir, readdir, rm } from "node:fs/promises";
 import { fileURLToPath } from "node:url";

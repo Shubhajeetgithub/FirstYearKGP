@@ -1,22 +1,20 @@
-# Catches bad frontmatter, type errors and broken builds before they reach main.
+# Catches type errors, failing tests and broken builds before they reach main. The build downloads
+# the blog content repository, so it also checks the site still renders every post.
+# (Posts are checked on their own side by the content repository's "Check and publish" workflow.)
 # Vercel would refuse to deploy a broken build anyway; this makes the error visible on the PR.
-name: Content check
+name: Site check
 
 on:
   pull_request:
   push:
     branches: [main]
-    paths:
-      - "src/content/**"
-      - "public/images/blog/**"
-      - "public/admin/**"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: content-check-${{ github.ref }}
+  group: site-check-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

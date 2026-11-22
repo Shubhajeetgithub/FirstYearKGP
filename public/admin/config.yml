@@ -1,10 +1,14 @@
 # yaml-language-server: $schema=https://unpkg.com/@sveltia/cms/schema/sveltia-cms.json
 # Sveltia CMS configuration: https://sveltiacms.app/en/docs
-# Trusted authors are GitHub users with write access to the repository.
+#
+# The CMS edits the blog content repository, not the website: posts and authors live in
+# Shubhajeetgithub/FirstYearKGP-blog, which the site downloads on every build (src/lib/blogContent.ts).
+# Writers need write access to that repository only. Saving commits there; its "Check and publish"
+# workflow validates the post and asks Vercel to rebuild the site.
 
 backend:
   name: github
-  repo: Shubhajeetgithub/FirstYearKGP
+  repo: Shubhajeetgithub/FirstYearKGP-blog
   branch: main
   # 🧑 HUMAN STEP (Phase 6.2): deploy sveltia-cms-auth to Cloudflare Workers, then uncomment and
   # set this to the Worker URL. Until then, use "Sign In with Token" (a GitHub personal access token).
@@ -26,18 +30,18 @@ display_url: https://ai2024-chi.vercel.app
 logo:
   src: /apple-touch-icon.png
 
-# Site-wide uploads (not used by posts, whose images live next to the post).
-media_folder: /public/images/blog
-public_folder: /images/blog
+# Required by the CMS. Posts don't use it: their images live next to the post (see below).
+media_folder: /media
+public_folder: /media
 
 collections:
   - name: blog
     label: Blog posts
     label_singular: Blog post
-    description: Posts appear on the site a couple of minutes after you save with Draft turned off.
-    folder: src/content/blog
+    description: Saved posts with Draft turned off appear on the site a couple of minutes later, once the automatic check passes.
+    folder: posts
     # One folder per post, images stored next to index.md and referenced by file name, so
-    # Astro can optimise them (src/content/blog/<slug>/index.md, src/content/blog/<slug>/cover.webp).
+    # Astro can optimise them (posts/<slug>/index.md, posts/<slug>/cover.webp).
     path: "{{slug}}/index"
     media_folder: ""
     public_folder: ""
@@ -75,7 +79,6 @@ collections:
       - { name: subject, label: Course code, widget: string, required: false, hint: "e.g. AI20203" }
       - { name: cover, label: Cover image, widget: image, required: false, hint: "Under 300 KB; WebP or PNG." }
       - { name: coverAlt, label: Cover description (alt text), widget: string, required: false }
-      - { name: math, label: Uses maths (KaTeX), widget: boolean, default: false, hint: "Write $inline$ and $$display$$ LaTeX." }
       - { name: draft, label: Draft, widget: boolean, default: true, hint: "Drafts are not published." }
       # Plain Markdown only: the rich-text mode reads \; \, \! as Markdown escapes and drops the
       # backslashes (and escapes * and _), which corrupts LaTeX when the post is saved.
@@ -83,13 +86,13 @@ collections:
         label: Body
         widget: markdown
         modes: [raw]
-        hint: "Markdown. Maths: $inline$ or $$ on its own line for display maths. The preview renders it."
+        hint: "Markdown. Maths: $inline$, or $$ on its own line before and after display maths (detected automatically). Images: upload with the image button; they are stored next to the post."
 
   - name: authors
     label: Authors
     label_singular: Author
     description: Add yourself here before writing your first post.
-    folder: src/content/authors
+    folder: authors
     create: true
     extension: json
     format: json

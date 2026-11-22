@@ -9,6 +9,14 @@ export const SITE = {
   repo: "Shubhajeetgithub/FirstYearKGP",
   repoUrl: "https://github.com/Shubhajeetgithub/FirstYearKGP",
   branch: "main",
+  /**
+   * Repository holding the blog's posts and authors, downloaded at build time and edited through
+   * the CMS (see src/lib/blogSource.ts). BLOG_CONTENT_REPO overrides it for a build.
+   */
+  blogRepo: "Shubhajeetgithub/FirstYearKGP-blog",
+  blogRepoUrl: "https://github.com/Shubhajeetgithub/FirstYearKGP-blog",
+  /** Branch of the blog content repository the CMS commits to. */
+  blogBranch: "main",
   feedbackFormUrl: "https://forms.gle/bMiuhPwQ4ees6BDQ9",
   ogImage: "/og.png",
   themeColor: "#07070a",

@@ -13,10 +13,13 @@ Cloudflare Workers (CMS sign-in) and Pagefind (search, built at deploy time).
 ## Architecture
 
 ```text
-Google Sheet ──CSV──▶ astro build ──▶ static HTML ──▶ Vercel
- (resources)            │   ▲
-                        │   └── src/content/blog/*, src/content/authors/*  ◀── Sveltia CMS (/admin)
-                        └──▶ pagefind (search index)                          commits to main via GitHub
+Google Sheet ──CSV──────────────┐
+ (resources)                    ▼
+                           astro build ──▶ static HTML + Pagefind index ──▶ Vercel
+                                ▲                                            ▲
+FirstYearKGP-blog ──tarball─────┘                                            │
+ (posts/, authors/)  ◀── Sveltia CMS (/admin) commits                         │
+        └── push to main: "Check and publish" builds the site, then ──deploy hook
 ```
 
 - **Astro, static output.** Every page is plain HTML built ahead of time. React only runs in
@@ -27,11 +30,14 @@ Google Sheet ──CSV──▶ astro build ──▶ static HTML ──▶ Verc
   so an empty page is never deployed. In the browser, the explorer also refreshes from the
   sheet in the background (cached in `localStorage`), so edits show up before the next build.
   A GitHub Action rebuilds the site every morning.
-- **Blog** posts are Markdown in `src/content/blog/<slug>/index.md` (images sit next to the
-  post), validated by `src/content.config.ts`. Maths uses KaTeX, loaded only on posts with
-  `math: true`. Comments and reactions use Giscus (GitHub Discussions).
+- **Blog** posts and author profiles live in a **separate repository**,
+  [FirstYearKGP-blog](https://github.com/Shubhajeetgithub/FirstYearKGP-blog), so writing a post
+  never touches this one. See [Blog content](#blog-content). Posts are Markdown, validated by
+  `src/content.config.ts`; maths uses KaTeX, whose styles load only on posts that contain maths.
+  Comments and reactions use Giscus (GitHub Discussions).
 - **Search** (`/search`) is Pagefind, indexing blog posts and semester pages at build time.
-- **CMS**: Sveltia CMS at `/admin` edits posts and authors and commits straight to the repo.
+- **CMS**: Sveltia CMS at `/admin` edits posts and authors and commits to the blog repository.
+  Its preview (`public/admin/preview.js`) renders posts like the site, maths included.
 
 Key files:
 
@@ -40,10 +46,11 @@ Key files:
 | `astro.config.mjs` | Site URL, integrations, Markdown pipeline |
 | `src/config/site.ts` | Site constants, nav, Giscus ids |
 | `src/content.config.ts` | Blog and author schemas |
+| `src/lib/blogSource.ts`, `src/lib/blogContent.ts` | Where blog content comes from; the build-time download and loader |
 | `src/lib/sheet.ts`, `src/lib/buildSheet.ts` | Sheet parsing, build-time fetch, browser cache |
 | `src/pages/` | Routes (`resources/`, `blog/`, `authors/`, `search`, `rss.xml`, `robots.txt`) |
-| `public/admin/` | Sveltia CMS (`index.html`, `config.yml`) |
-| `.github/workflows/` | Daily rebuild, content check (CI), weekly link check |
+| `public/admin/` | Sveltia CMS (`index.html`, `config.yml`, `preview.js`) |
+| `.github/workflows/` | Daily rebuild, site check (CI), weekly link check |
 
 ## Local development
 
@@ -71,6 +78,10 @@ npm run dev            # http://localhost:4321
 No sheet URL? Build against the sample data instead:
 `SHEET_CSV_FILE=fixtures/sheet.sample.csv npm run dev`.
 
+The build downloads the blog repository into `.blog-content/` (gitignored). Offline, `npm run dev`
+falls back to the last download. To work on posts, point it at a local clone instead:
+`BLOG_CONTENT_DIR=../FirstYearKGP-blog npm run dev`.
+
 > **Windows:** run commands from a path with an upper-case drive letter (`E:\FirstYearKGP`, not
 > `e:\FirstYearKGP`). Vitest loads two copies of itself when the drive letter's case differs, and
 > every test file then fails with "failed to find the runner".
@@ -83,13 +94,17 @@ No sheet URL? Build against the sample data instead:
 | `VITE_SHEET_CSV_URL` | Vercel, `.env` | The same URL, used by the browser for the background refresh. Also a build-time fallback. |
 | `PUBLIC_VERCEL_ANALYTICS` | Vercel | `true` to load Vercel Web Analytics (enable it in the Vercel dashboard first). |
 | `SHEET_CSV_FILE` | CI, local | Path to a local CSV used **only** when no sheet URL is set. Never set it on Vercel. |
+| `BLOG_CONTENT_REPO` | optional | Blog repository as `owner/name`. Default `Shubhajeetgithub/FirstYearKGP-blog`. |
+| `BLOG_CONTENT_REF` | optional | Branch, tag or commit of the blog repository to build. Default `main`. |
+| `BLOG_CONTENT_TOKEN` | Vercel, only if the blog repository is private | A read-only GitHub token (fine-grained, Contents: read) for downloading it. |
+| `BLOG_CONTENT_DIR` | local, CI | Build from a local folder instead of downloading, e.g. `../FirstYearKGP-blog`. |
 
 GitHub repository settings used by the workflows:
 
 | Name | Kind | Used by |
 |---|---|---|
 | `VERCEL_DEPLOY_HOOK` | secret | `rebuild.yml`: daily rebuild |
-| `SHEET_CSV_URL` | variable (or secret) | `content-check.yml`, `links.yml` |
+| `SHEET_CSV_URL` | variable (or secret) | `site-check.yml`, `links.yml` |
 
 ### Daily rebuild (deploy hook)
 
@@ -116,22 +131,48 @@ All resources live in one Google Sheet:
 To publish a new sheet: File → Share → Publish to web → choose the sheet → CSV. Put the URL in
 `SHEET_CSV_URL` and `VITE_SHEET_CSV_URL`.
 
-## Writing for the blog
+## Blog content
+
+Posts and authors live in
+[Shubhajeetgithub/FirstYearKGP-blog](https://github.com/Shubhajeetgithub/FirstYearKGP-blog):
+
+```text
+posts/<slug>/index.md     a post; images sit next to it   → /blog/<slug>
+authors/<id>.json         an author profile               → /authors/<id>
+```
+
+How it gets onto the site:
+
+1. A writer saves in the CMS (or pushes / merges a pull request) in the blog repository.
+2. Its **Check and publish** workflow builds this website against the new content. A broken post
+   (bad frontmatter, missing image, unknown author) fails here and is never published.
+3. If the check passes, the workflow calls the Vercel deploy hook. Vercel builds this repository,
+   and the build downloads the latest `main` of the blog repository
+   (`src/lib/blogContent.ts`, a content-collection loader), so the post is live in a few minutes.
+
+Why a download rather than an npm (or git) dependency: a dependency is pinned to one commit in
+`package-lock.json`, so every new post would need a lock-file commit here. The loader always
+builds the blog repository's latest `main`, and this repository never changes for a post.
+`BLOG_CONTENT_REF` pins a branch, tag or commit if you ever need to.
+
+### Writing for the blog
 
 See [/blog/contribute](https://ai2024-chi.vercel.app/blog/contribute) for the author guide
 (frontmatter fields, maths, images). In short:
 
-- **Who:** GitHub users with write access to this repository (Settings → Collaborators).
+- **Who:** GitHub users with write access to the **blog repository** (its Settings →
+  Collaborators). They don't need access to this repository.
 - **Online:** sign in at `/admin` with GitHub, or with a fine-grained personal access token
-  (Contents: read and write, this repository only) if the GitHub button isn't set up.
-- **Locally:** `npm run dev`, open <http://localhost:4321/admin/index.html> in Chrome or Edge, and
-  choose *Work with Local Repository*.
-- **By pull request:** copy `src/content/blog/_template.md` to `src/content/blog/<slug>/index.md`.
+  (Contents: read and write, blog repository only) if the GitHub button isn't set up.
+- **Locally:** clone both repositories side by side and run
+  `BLOG_CONTENT_DIR=../FirstYearKGP-blog npm run dev` here; or open `/admin` in Chrome or Edge,
+  choose *Work with Local Repository* and pick the blog clone.
+- **By pull request:** in the blog repository, copy `TEMPLATE.md` to `posts/<slug>/index.md`.
 
 ### Adding an author
 
-Authors are JSON files in `src/content/authors/`; the file name is the author id used in a post's
-`author` field. Create one in the CMS (Authors → New) or by hand:
+Authors are JSON files in the blog repository's `authors/`; the file name is the author id used in
+a post's `author` field. Create one in the CMS (Authors → New) or by hand:
 
 ```json
 {
@@ -155,11 +196,12 @@ OAuth flow needs a client secret, which lives only in a small Cloudflare Worker
 2. The CMS opens the Worker (`base_url` in `public/admin/config.yml`), which redirects to GitHub.
 3. GitHub redirects back to `<worker>/callback`; the Worker exchanges the code for a token and
    hands it to the CMS.
-4. The CMS commits with that token. GitHub only allows it for users with write access.
+4. The CMS commits to the blog repository with that token. GitHub only allows it for users with
+   write access there.
 
 Setup: deploy the Worker on the Cloudflare free plan, register a GitHub App (the Worker's README
 has a pre-filled link; an OAuth App also works) with callback URL `<worker>/callback` and
-Contents + Pull requests read/write permissions, install it on this repository, set
+Contents + Pull requests read/write permissions, install it on the **blog** repository, set
 `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` (as a secret) and
 `ALLOWED_DOMAINS=ai2024-chi.vercel.app` on the Worker, then set `base_url` in
 `public/admin/config.yml`.

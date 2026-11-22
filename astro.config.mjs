@@ -10,9 +10,15 @@ import rehypeKatex from "rehype-katex";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeExternalLinks from "rehype-external-links";
+import { searchForWorkspaceRoot } from "vite";
 import { remarkReadingTime } from "./src/lib/readingTime.ts";
+import { readBlogEnv, resolveBlogSource } from "./src/lib/blogSource.ts";
 
 const SITE_URL = "https://ai2024-chi.vercel.app";
+
+// Blog posts come from a separate repository (downloaded into .blog-content, or a local clone set
+// with BLOG_CONTENT_DIR). The dev server may serve its images even when it sits outside the project.
+const blogSource = resolveBlogSource(readBlogEnv());
 
 /** Pages that should not be in the sitemap. */
 const EXCLUDED_FROM_SITEMAP = [/\/404$/, /\/search$/, /\/admin(\/|$)/];
@@ -53,5 +59,8 @@ export default defineConfig({
   },
   vite: {
     plugins: [tailwindcss()],
+    server: {
+      fs: { allow: [searchForWorkspaceRoot(process.cwd()), blogSource.dir] },
+    },
   },
 });

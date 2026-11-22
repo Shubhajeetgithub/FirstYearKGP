@@ -1,4 +1,4 @@
-# Maintainers are asked to review changes here (and notified of CMS commits).
-src/content/blog/ @Shubhajeetgithub
-src/content/authors/ @Shubhajeetgithub
+# Maintainers are asked to review changes here. Blog posts and authors live in
+# Shubhajeetgithub/FirstYearKGP-blog, which has its own CODEOWNERS.
 public/admin/ @Shubhajeetgithub
+src/content.config.ts @Shubhajeetgithub
