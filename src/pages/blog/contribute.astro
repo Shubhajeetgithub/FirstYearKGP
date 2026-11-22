@@ -7,16 +7,16 @@ const fields: [name: string, required: string, notes: string][] = [
   ["title", "yes", "The post title."],
   ["description", "yes", "One or two sentences, at most 160 characters. Used in search results and link previews."],
   ["pubDate", "yes", "Publication date, YYYY-MM-DD."],
-  ["author", "yes", "Your author id: the file name of your entry in src/content/authors, without .json. Use a list for co-authors."],
+  ["author", "yes", "Your author id: the file name of your entry in authors/, without .json. Use a list for co-authors."],
   ["tags", "no", "Lowercase topics, e.g. [signals, fourier]. Spaces become hyphens."],
   ["subject", "no", "Course code, e.g. AI20203."],
   ["updatedDate", "no", "Date of a significant update."],
   ["cover", "no", "Cover image file name, next to the post."],
   ["coverAlt", "no", "Text description of the cover for screen readers."],
-  ["math", "no", "true if the post uses maths. Loads the KaTeX stylesheet for that post only."],
   ["draft", "no", "true keeps the post off the live site."],
 ];
-const repo = SITE.repoUrl;
+const repo = SITE.blogRepoUrl;
+const branch = SITE.blogBranch;
 ---
 
 <BaseLayout
@@ -28,39 +28,43 @@ const repo = SITE.repoUrl;
   <div class="prose prose-invert prose-lg max-w-3xl mx-auto prose-post">
     <h2 id="who-can-write">Who can write</h2>
     <p>
-      Anyone with <strong>write access</strong> to the
-      <a href={repo} target="_blank" rel="noopener noreferrer">GitHub repository</a> can publish. Ask a maintainer to add you as a
-      collaborator. Every post is a commit, so there is full history and anything can be rolled back.
+      Posts live in their own repository,
+      <a href={repo} target="_blank" rel="noopener noreferrer">{SITE.blogRepo}</a>, separate from the website's code. Anyone with
+      <strong>write access</strong> to it can publish: ask a maintainer to add you as a collaborator. Every post is a commit, so there
+      is full history and anything can be rolled back.
     </p>
     <p>
       <strong>First time?</strong> Add yourself as an author before writing your first post: in the editor, open
-      <em>Authors → New</em> (or add a JSON file to <code>src/content/authors/</code>). Your author id is the file name, for example
+      <em>Authors → New</em> (or add a JSON file to <code>authors/</code>). Your author id is the file name, for example
       <code>firstname-lastname</code>.
     </p>
 
     <h2 id="option-a-the-editor">Option A: the online editor</h2>
     <ol>
-      <li>Go to <a href="/admin/index.html">/admin</a> and sign in with GitHub.</li>
-      <li>Open <em>Blog posts → New</em>, fill in the fields and write the post in the Markdown editor.</li>
+      <li>Go to <a href="/admin">/admin</a> and sign in with GitHub.</li>
+      <li>Open <em>Blog posts → New</em>, fill in the fields and write the post in Markdown. The preview on the right shows it as it will look on the site, maths included.</li>
+      <li>Upload images with the image button in the editor; they are stored next to the post.</li>
       <li>Leave <em>Draft</em> on while you work. Turn it off and save to publish.</li>
-      <li>Saving commits to the repository. The site rebuilds automatically and the post appears within a couple of minutes.</li>
+      <li>Saving commits to the blog repository. An automatic check builds the site with your post; if it passes, the post appears within a couple of minutes. If it fails, nothing changes on the site and the error is shown under the repository's <em>Actions</em> tab.</li>
     </ol>
     <p>
-      <strong>Can't sign in?</strong> Use <em>Sign In with Token</em> on the login screen. Create a
+      <strong>Can't sign in?</strong> Use <em>Sign In Using Access Token</em> on the login screen. Create a
       <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer">fine-grained personal access token</a>
-      for this repository only, with <em>Contents: Read and write</em> permission, and paste it in. The token stays in your browser.
+      for the blog repository only, with <em>Contents: Read and write</em> permission, and paste it in. The token stays in your browser.
     </p>
 
-    <h2 id="option-b-a-pull-request">Option B: a pull request</h2>
+    <h2 id="option-b-files-and-a-pull-request">Option B: files and a pull request</h2>
     <ol>
-      <li>Copy <a href={`${repo}/blob/${SITE.branch}/src/content/blog/_template.md`} target="_blank" rel="noopener noreferrer">src/content/blog/_template.md</a> to <code>src/content/blog/your-post-slug/index.md</code>.</li>
+      <li>Clone <a href={repo} target="_blank" rel="noopener noreferrer">{SITE.blogRepo}</a>.</li>
+      <li>Copy <a href={`${repo}/blob/${branch}/TEMPLATE.md`} target="_blank" rel="noopener noreferrer">TEMPLATE.md</a> to <code>posts/your-post-slug/index.md</code>. The folder name becomes the URL, <code>/blog/your-post-slug</code>.</li>
       <li>Put any images in the same folder.</li>
-      <li>Run <code>npm run dev</code> to preview it at <code>http://localhost:4321/blog/your-post-slug</code>.</li>
-      <li>Open a pull request. CI checks the frontmatter and builds the site.</li>
+      <li>Open a pull request. The check builds the site with your post and reports any problem.</li>
     </ol>
     <p>
-      You can also use the editor locally: run <code>npm run dev</code>, open
-      <code>http://localhost:4321/admin/index.html</code> in Chrome or Edge, and choose <em>Work with Local Repository</em>.
+      To preview locally, clone the website next to the blog repository and run
+      <code>BLOG_CONTENT_DIR=../FirstYearKGP-blog npm run dev</code> in the website folder, then open
+      <code>http://localhost:4321/blog</code>. You can also open <a href="/admin">/admin</a> in Chrome or Edge, choose
+      <em>Work with Local Repository</em> and select your clone of the blog repository.
     </p>
 
     <h2 id="frontmatter">Frontmatter fields</h2>
@@ -82,10 +86,11 @@ const repo = SITE.repoUrl;
     </div>
 
     <h2 id="maths">Maths</h2>
-    <p>Set <code>math: true</code>, then write LaTeX between dollar signs:</p>
+    <p>Write LaTeX between dollar signs. There's nothing to switch on: posts with maths load the maths styles automatically.</p>
     <ul>
       <li>Inline: <code>$e^{"{"}j\pi{"}"} + 1 = 0$</code></li>
       <li>Display: <code>$$</code> on its own line, the formula, then <code>$$</code> again.</li>
+      <li>A literal dollar sign is <code>\$</code>.</li>
     </ul>
     <p>
       Rendering uses KaTeX, which supports most of what you would write in a LaTeX report. Long display equations scroll sideways on phones.

@@ -7,7 +7,8 @@ import AuthorCard from "../components/AuthorCard.astro";
 import TOC from "../components/TOC.astro";
 import { SITE } from "../config/site";
 import type { Author, Post } from "../lib/blog";
-import { authorUrl, avatarUrl, formatDate, postUrl, tagUrl } from "../lib/posts";
+import { authorUrl, avatarUrl, containsMath, formatDate, postUrl, tagUrl } from "../lib/posts";
+import { contentRepoPath, readBlogEnv, resolveBlogSource } from "../lib/blogSource";
 
 export interface Props {
   post: Post;
@@ -25,7 +26,12 @@ const { title, description, pubDate, updatedDate, tags, subject, cover, coverAlt
 const site = Astro.site ?? new URL(SITE.url);
 const url = new URL(postUrl(post.id), site).href;
 const lastUpdated = updatedDate ?? pubDate;
-const editUrl = post.filePath ? `${SITE.repoUrl}/edit/${SITE.branch}/${post.filePath}` : undefined;
+// Posts live in the blog content repository, so "Edit on GitHub" points there.
+const blogSource = resolveBlogSource(readBlogEnv());
+const repoPath = post.filePath ? contentRepoPath(post.filePath, blogSource.dir) : undefined;
+const editUrl = repoPath ? `https://github.com/${blogSource.repo}/edit/${SITE.blogBranch}/${repoPath}` : undefined;
+// KaTeX's stylesheet loads only on posts that contain maths (or that ask for it).
+const usesMath = math || containsMath(post.body);
 const authorProfiles = authors.map((a) => new URL(authorUrl(a.id), site).href);
 
 // Social image: the optimised cover when there is one, else the site default.
@@ -66,7 +72,7 @@ const jsonLd = {
   noindex={draft}
 >
   <Fragment slot="head">
-    {math && <link rel="stylesheet" href="/vendor/katex/katex.min.css" />}
+    {usesMath && <link rel="stylesheet" href="/vendor/katex/katex.min.css" />}
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </Fragment>
 

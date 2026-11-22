@@ -6,7 +6,6 @@ author: shubhajeet-das
 tags: [signals, fourier, exam-tips]
 cover: cover.png
 coverAlt: Sine waves at odd harmonics adding up to an approximate square wave
-math: true
 draft: false
 ---
 

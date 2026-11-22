@@ -1,6 +1,9 @@
 import { defineCollection, reference } from "astro:content";
-import { glob } from "astro/loaders";
 import { z } from "astro/zod";
+import { blogContentLoader } from "./lib/blogContent";
+
+// Posts and authors live in a separate repository (BLOG_CONTENT_REPO, by default
+// Shubhajeetgithub/FirstYearKGP-blog), downloaded at build time. See README → "Blog content".
 
 /** Treats "" and null as missing, as editors may save blank optional fields that way. */
 const blankAsMissing = (value: unknown) => (value === "" || value === null ? undefined : value);
@@ -13,8 +16,8 @@ const tag = z
   .transform((t) => t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""));
 
 const authors = defineCollection({
-  // Entry id = file name without extension, e.g. src/content/authors/shubhajeet-das.json → "shubhajeet-das".
-  loader: glob({ pattern: "**/[^_]*.json", base: "./src/content/authors" }),
+  // Entry id = file name without extension, e.g. authors/shubhajeet-das.json → "shubhajeet-das".
+  loader: blogContentLoader("authors", "**/[^_]*.json"),
   schema: z.object({
     name: z.string().min(1),
     /** GitHub username, without "@". */
@@ -32,9 +35,9 @@ const authors = defineCollection({
 });
 
 const blog = defineCollection({
-  // Either src/content/blog/<slug>.md or src/content/blog/<slug>/index.md (the CMS layout, with
-  // images next to the post). Files starting with "_" (like _template.md) are ignored.
-  loader: glob({ pattern: "**/[^_]*.{md,mdx}", base: "./src/content/blog" }),
+  // posts/<slug>/index.md (the CMS layout, with images next to the post) or posts/<slug>.md.
+  // Files starting with "_" are ignored.
+  loader: blogContentLoader("posts", "**/[^_]*.{md,mdx}"),
   schema: ({ image }) =>
     z.object({
       title: z.string().min(1),
@@ -42,7 +45,7 @@ const blog = defineCollection({
       description: z.string().min(1).max(160, "Keep the description to 160 characters or fewer"),
       pubDate: z.coerce.date(),
       updatedDate: z.preprocess(blankAsMissing, z.coerce.date().optional()),
-      /** One author id, or several for co-authored posts (file names in src/content/authors). */
+      /** One author id, or several for co-authored posts (file names in authors/). */
       author: z.union([reference("authors"), z.array(reference("authors")).min(1)]),
       tags: z.preprocess(blankAsMissing, z.array(tag).default([])),
       /** Course code, e.g. "AI20203". */
@@ -50,7 +53,7 @@ const blog = defineCollection({
       cover: z.preprocess(blankAsMissing, image().optional()),
       coverAlt: z.preprocess(blankAsMissing, z.string().optional()),
       draft: z.boolean().default(false),
-      /** Loads the KaTeX stylesheet for this post. */
+      /** Optional: maths is detected automatically. true forces the KaTeX stylesheet on. */
       math: z.boolean().default(false),
     }),
 });

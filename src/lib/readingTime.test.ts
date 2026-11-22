@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { minutesToRead, remarkReadingTime } from "./readingTime";
+import { minutesToRead, proseText, remarkReadingTime } from "./readingTime";
 import type { Root } from "mdast";
 
 describe("reading time", () => {
@@ -10,6 +10,21 @@ describe("reading time", () => {
 
   it("scales with length (~200 words a minute)", () => {
     expect(minutesToRead("word ".repeat(1000))).toBe(5);
+  });
+
+  it("counts prose only, with paragraphs kept apart", () => {
+    const tree: Root = {
+      type: "root",
+      children: [
+        { type: "paragraph", children: [{ type: "text", value: "first" }] },
+        { type: "paragraph", children: [{ type: "text", value: "second" }, { type: "inlineCode", value: "x" }] },
+        { type: "code", value: "print('not prose')" },
+        { type: "html", value: "<b>skip</b>" },
+      ],
+    };
+    expect(proseText(tree)).toBe("first second x");
+    // remark-math nodes are skipped too.
+    expect(proseText({ type: "root", children: [{ type: "math", value: "x^2" }, { type: "inlineMath", value: "y" }] })).toBe("");
   });
 
   it("writes minutesRead into the Astro frontmatter", () => {

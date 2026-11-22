@@ -31,3 +31,7 @@ dist-ssr
 
 # Copied from node_modules by scripts/copy-vendor.mjs
 public/vendor/
+
+# Blog content downloaded at build time (src/lib/blogContent.ts)
+.blog-content/
+.blog-content.download/

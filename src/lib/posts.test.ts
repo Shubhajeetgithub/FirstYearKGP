@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { avatarUrl, formatDate, isVisible, neighbours, sortByDateDesc, tagCounts } from "./posts";
+import { avatarUrl, containsMath, formatDate, isVisible, neighbours, sortByDateDesc, tagCounts } from "./posts";
 import type { PostLike } from "./posts";
 
 const post = (id: string, date: string, tags: string[] = [], draft = false): PostLike => ({
@@ -36,6 +36,19 @@ describe("posts helpers", () => {
   it("falls back to the GitHub avatar", () => {
     expect(avatarUrl({ github: "octocat" })).toBe("https://avatars.githubusercontent.com/octocat?s=160");
     expect(avatarUrl({ github: "octocat", avatar: "https://x/y.png" })).toBe("https://x/y.png");
+  });
+
+  it.each([
+    ["display maths", "Before\n\n$$\nx^2\n$$\n", true],
+    ["inline maths", "Euler: $e^{i\\pi} + 1 = 0$.", true],
+    ["no maths", "Just text.", false],
+    ["prices", "It costs $5 and $10.", false],
+    ["an escaped dollar", "Costs \\$3 or \\$4.", false],
+    ["dollars in inline code", "Use `$x$` like this.", false],
+    ["dollars in a code block", "```sh\necho $HOME $PATH\n```", false],
+    ["undefined", undefined, false],
+  ])("containsMath: %s", (_label, markdown, expected) => {
+    expect(containsMath(markdown)).toBe(expected);
   });
 
   it("formats frontmatter dates in UTC", () => {

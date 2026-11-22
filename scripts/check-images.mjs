@@ -1,9 +1,12 @@
-// Warns about large images in blog content (guideline: ≤ 300 KB, WebP or PNG).
+// Warns about large images (guideline: ≤ 300 KB, WebP or PNG).
+// Usage: node scripts/check-images.mjs [folder ...]   (default: public/images and .blog-content)
+// The blog content repository's workflow passes its own posts/ and authors/ folders.
 // Prints GitHub Actions annotations; exits 0 so a large image never blocks a post.
 import { readdir, stat } from "node:fs/promises";
 import { join, extname } from "node:path";
 
-const ROOTS = ["src/content", "public/images"];
+const args = process.argv.slice(2);
+const ROOTS = args.length ? args : ["public/images", ".blog-content"];
 const IMAGE = new Set([".png", ".jpg", ".jpeg", ".webp", ".gif", ".avif", ".svg"]);
 const WARN_BYTES = 500 * 1024;
 const GUIDE_BYTES = 300 * 1024;

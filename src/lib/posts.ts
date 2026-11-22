@@ -34,6 +34,19 @@ export function neighbours<P extends PostLike>(sorted: readonly P[], id: string)
   return { newer: sorted[i - 1], older: sorted[i + 1] };
 }
 
+/**
+ * Whether Markdown contains $inline$ or $$display$$ maths outside code, so the KaTeX stylesheet is
+ * loaded without authors having to remember a flag. Mirrors remark-math: a single $ only opens
+ * maths when followed by a non-space, and "$5 and $10" is not maths.
+ */
+export function containsMath(markdown: string | undefined): boolean {
+  if (!markdown) return false;
+  const prose = markdown
+    .replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, "")
+    .replace(/`[^`\n]*`/g, "");
+  return /\$\$[\s\S]+?\$\$/.test(prose) || /(^|[^\\$])\$(?!\s)[^$\n]+?(?<!\s)\$(?!\d)/m.test(prose);
+}
+
 export const postUrl = (id: string): string => `/blog/${id}`;
 export const tagUrl = (tag: string): string => `/blog/tags/${tag}`;
 export const authorUrl = (id: string): string => `/authors/${id}`;
