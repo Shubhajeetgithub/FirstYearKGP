@@ -86,8 +86,8 @@ const jsonLd = {
           <a href={tagUrl(tag)} class="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:border-indigo-500/40 transition-colors">#{tag}</a>
         ))}
       </div>
-      <h1 class="mt-5 text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight" data-pagefind-meta="title">{title}</h1>
-      <p class="mt-4 text-lg text-slate-400 leading-relaxed">{description}</p>
+      <h1 class="selectable mt-5 text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight" data-pagefind-meta="title">{title}</h1>
+      <p class="selectable mt-4 text-lg text-slate-400 leading-relaxed">{description}</p>
       <div class="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-slate-400">
         <span class="flex items-center gap-2">
           <span class="flex -space-x-2">
@@ -131,7 +131,7 @@ const jsonLd = {
       </aside>
 
       <div class="min-w-0 lg:order-1">
-        <div class="prose prose-invert prose-lg max-w-none prose-post">
+        <div class="selectable prose prose-invert prose-lg max-w-none prose-post">
           <slot />
         </div>
 
@@ -172,3 +172,9 @@ const jsonLd = {
     </div>
   </article>
 </BaseLayout>
+
+<script>
+  // Copying part of a formula copies the whole formula as TeX ($…$ or $$…$$).
+  import { installCopyTex } from "../lib/copyTex";
+  installCopyTex();
+</script>

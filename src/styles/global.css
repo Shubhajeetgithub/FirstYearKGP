@@ -22,15 +22,27 @@
   html {
     color-scheme: dark;
     background-color: #07070a;
-    /* An arrow over plain text instead of the I-beam; text can still be selected. */
+    /* The site's text is interface, not reading matter: an arrow cursor and no text selection.
+       Blog posts opt back in with .selectable. */
     cursor: default;
+    -webkit-user-select: none;
+    user-select: none;
   }
 
-  /* Places you type keep the I-beam. */
+  /* Reading text (a blog post's title, summary and body) behaves like ordinary text again. */
+  .selectable {
+    cursor: auto;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  /* Places you type keep the I-beam and stay selectable. */
   input:not([type="button"], [type="submit"], [type="reset"], [type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"]),
   textarea,
   [contenteditable]:not([contenteditable="false"]) {
     cursor: text;
+    -webkit-user-select: text;
+    user-select: text;
   }
 
   /* A visible focus ring for keyboard users on everything focusable. Components that draw their

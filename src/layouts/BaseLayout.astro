@@ -26,7 +26,7 @@ const analytics = import.meta.env.PUBLIC_VERCEL_ANALYTICS === "true";
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <link rel="alternate" type="application/rss+xml" title={`${SITE.name} blog`} href={new URL("/rss.xml", Astro.site)} />
+    <link rel="alternate" type="application/rss+xml" title={`${SITE.name} blog`} href={new URL("/rss.xml", Astro.site ?? SITE.url)} />
     <SEO {...props} />
     <slot name="head" />
     {analytics && <Analytics />}
