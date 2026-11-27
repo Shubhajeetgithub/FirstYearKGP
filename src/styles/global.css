@@ -22,6 +22,15 @@
   html {
     color-scheme: dark;
     background-color: #07070a;
+    /* An arrow over plain text instead of the I-beam; text can still be selected. */
+    cursor: default;
+  }
+
+  /* Places you type keep the I-beam. */
+  input:not([type="button"], [type="submit"], [type="reset"], [type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"]),
+  textarea,
+  [contenteditable]:not([contenteditable="false"]) {
+    cursor: text;
   }
 
   /* A visible focus ring for keyboard users on everything focusable. Components that draw their
@@ -32,7 +41,7 @@
   }
 }
 
-/* Respect "reduce motion": no fade-ins, hover lifts or smooth scrolling. The cursor glow and the
+/* Respect "reduce motion": no fade-ins, hover lifts or smooth scrolling. The tap ripple and the
    typing animation are switched off in their components. */
 @media (prefers-reduced-motion: reduce) {
   *,
