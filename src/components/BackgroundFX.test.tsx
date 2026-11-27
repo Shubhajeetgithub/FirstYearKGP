@@ -13,19 +13,11 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-const mouseGlowOverlay = (container: HTMLElement) => container.querySelector(".pointer-events-none.fixed");
-
 describe("BackgroundFX", () => {
-  it("uses the mouse glow on fine pointers", () => {
+  it("renders nothing on fine pointers", () => {
     stubPointer(false);
     const { container } = render(<BackgroundFX />);
-    expect(mouseGlowOverlay(container)).not.toBeNull();
-  });
-
-  it("switches to the touch effect on coarse pointers", () => {
-    stubPointer(true);
-    const { container } = render(<BackgroundFX />);
-    expect(mouseGlowOverlay(container)).toBeNull();
+    expect(container.innerHTML).toBe("");
   });
 
   it("does not log to the console", () => {
